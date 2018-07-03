@@ -4,8 +4,11 @@
 // include the PHP functions
 include('functions.php');
 
+// Set of the Subsidiary, useful for the currencies
+$subsidiary = set_sub();
+
 // Parse the API result line by line
-$portfolio = parse();
+$portfolio = parse($subsidiary);
 
 ?>
 <head>

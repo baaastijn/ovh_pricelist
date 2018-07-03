@@ -81,11 +81,7 @@ function set_currency($json) {
 }
     
 // Parse the API results to retrieve the useful informations
-function parse() {
-    
-    // Set of the Subsidiary, useful for the currencies
-    $subsidiary = set_sub();
-    
+function parse($subsidiary) {
     // Retrieve the Availables products from OVH API
     $json = get_from('order/catalog/formatted/dedicated?ovhSubsidiary=', $subsidiary);
     
