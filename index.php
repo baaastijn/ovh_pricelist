@@ -56,7 +56,7 @@ $portfolio = parse($subsidiary);
         <tbody>
             <?php foreach($portfolio as $item) { ?>
             <tr>
-                <td data-search="<?php echo $item['dc'] ?>" data-order="<?php echo $item['dc'] ?>"><img src='<?php echo "img/".$item['flag'] ?>' alt='region' width="30px"> <?php echo strtoupper($item['dc']); ?></td>
+                <td data-search="<?php echo $item['dc'] ?>" data-order="<?php echo $item['dc'] ?>"><img src='<?php echo "img/".$item['flag'] ?>' alt='region' width="30"> <?php echo strtoupper($item['dc']); ?></td>
                 <td><?php echo $item['family'] ?></td>
                 <td><?php echo $item['name'] ?></td>
                 <td><?php echo $item['api_name'] ?></td>
