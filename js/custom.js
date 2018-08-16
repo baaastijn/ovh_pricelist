@@ -4,11 +4,14 @@ $(document).ready(function() {
         "order": [[ 9, "asc" ]],
         paging: false,
         "bLengthChange": false,
-        "pageLength": 500,
+        "pageLength": 1500,
         "select": true,
         "fixedHeader": true,
         "sPaginationType": "full_numbers",
         "dom": 'Bfrtip',
+        rowGroup: {
+            dataSrc: 2
+        },
         "buttons": [
 
             {
