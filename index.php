@@ -24,10 +24,10 @@ $portfolio = parse($subsidiary);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>OVH Dedicated Servers pricelist</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4-4.0.0/jq-3.2.1/jszip-2.5.0/dt-1.10.16/b-1.5.1/b-colvis-1.5.1/b-html5-1.5.1/b-print-1.5.1/fh-3.1.3/kt-2.3.2/sl-1.2.5/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4-4.1.1/jq-3.3.1/jszip-2.5.0/dt-1.10.18/b-1.5.2/b-colvis-1.5.2/b-html5-1.5.2/b-print-1.5.2/fh-3.1.4/rg-1.0.3/sl-1.2.6/datatables.min.css"/>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4-4.0.0/jq-3.2.1/jszip-2.5.0/dt-1.10.16/b-1.5.1/b-colvis-1.5.1/b-html5-1.5.1/b-print-1.5.1/fh-3.1.3/kt-2.3.2/sl-1.2.5/datatables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4-4.1.1/jq-3.3.1/jszip-2.5.0/dt-1.10.18/b-1.5.2/b-colvis-1.5.2/b-html5-1.5.2/b-print-1.5.2/fh-3.1.4/rg-1.0.3/sl-1.2.6/datatables.min.js"></script>
     <!-- Custom CSS -->
     <link href="css/main.css" rel="stylesheet">
     <!-- Custom JS -->
@@ -50,6 +50,7 @@ $portfolio = parse($subsidiary);
                 <th>Public network</th>
                 <th>Private network</th>
                 <th>Monthly price</th>
+                <th>Availability</th>
                 <th>Buy</th>
             </tr>
         </thead>
@@ -63,21 +64,23 @@ $portfolio = parse($subsidiary);
                 <td><?php echo $item['cpu'] ?></td>
                 <td data-order="<?php echo $item['memory'] ?>"><?php echo $item['memory'] ?></td>
                 <td data-order="<?php echo $item['total_storage'] ?>"><?php echo $item['storage'] ?></td>
-                <td data-order="<?php echo $item['public_network'] ?>"><?php echo $item['public_network'] ?></td>
-                <td data-order="<?php echo $item['private_network'] ?>"><?php echo $item['private_network'] ?></td>
+                <td data-order="<?php echo $item['public_network'] ?>"><?php echo $item['public_network'] ?> Mbps</td>
+                <td data-order="<?php echo $item['private_network'] ?>"><?php echo $item['private_network'] ?> Gbps</td>
                 <td data-order="<?php echo $item['price'] ?>"><?php echo $item['price'] ?></td>
+                <td><?php echo $item['availability'] ?></td>
                 <td><a href="<?php echo $item['webpage'] ?>" target="_blank">Buy it</a></td>
             </tr>   
             <?php } ?>
         </tbody>
     </table>
+
     
     <div class="card">
         <div class="card-body bg-light">
         <p><strong>Why ?</strong> Table view of a product portfolio could be useful. Also, I wanted to play with OVH API and Datatables.net.</p>
         <p><strong>Who ?</strong> Initiated by <a href="https://www.twitter.com/BastienOVH" target="_blank">@BastienOVH</a>.</p>
-        <p><strong>How ?</strong> It's a PoC. I dirty-coded a Curl call to api.ovh.com to retrieve the data then I parse it in PHP, and build a sexy table with Datatables.net. "ovh_pricelist" repo on GitHub.</p>
-        <p class="bg-warning"><strong>Warning</strong> This site is not maintained by or affiliated with OVH. The data shown is not guaranteed to be accurate or current. Please report issues you see. </p>
+        <p><strong>How ?</strong> It's a PoC. I dirty-coded a Curl call to api.ovh.com to retrieve the data then I parse it in PHP, and build a sexy table with Datatables.net. <a href="https://github.com/baaastijn/ovh_pricelist" target="_blank">Contribute on Github !</a></p>
+        <p class="bg-warning"><strong>Warning</strong> This site is not maintained by or affiliated with OVH. The data shown is not guaranteed to be accurate or current. Please report issues you see on Github. </p>
         <p><strong>Credentials</strong> Flags designed by Freepik from Flaticon.</p>
         </div>
     </div>

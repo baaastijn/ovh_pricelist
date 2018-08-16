@@ -42,9 +42,7 @@ function get_from($url, $sub) {
             curl_close($ch);
 
             file_put_contents($cache, $result) ; // we cache the result in a new file
-            
 
-            
             //convert JSON data back to PHP array and return it
             return json_decode($result, true);
     }
@@ -63,17 +61,33 @@ function cache_time($sub){
     else {
         $update = "Last modified: unknown"; 
     }
-    
+
     return $update;
 }
 
 
-// Check availability for a specific server
-function check_availability($url, $dc, $server) {
-    //todo but boring API to do it.
+// Check availabilities for the whole json
+function availability_parsing() {
+    $result = file_get_contents("https://www.ovh.com/engine/api/dedicated/server/availabilities?country=fr".$sub);
+    $json = json_decode($result, true); 
+    
+    $i = 0;
+    $availability = array();
+    
+    // Dirty way to have an exploitable availability array. the source JSON contain to many dimensions, too many loops to look into.
+    // here we flatten it, generating for example 1801eg04-gra-24H
+    foreach($json as $item){
+        foreach($item['datacenters'] as $datacenter) {
+            $availability[$i] =  array(
+                'product' => $item['hardware']."-".$datacenter['datacenter'],
+                'availability' => $datacenter['availability']);
+            $i++;
+        }  
+    };
+    return $availability;    
 }
 
-// Check availability for a specific server
+// Set the currency for the prices informations.
 function set_currency($json) {
     // Set the currency symbol found inside the JSON
     $currency = $json['metadatas']['currency']['symbol']; 
@@ -82,13 +96,17 @@ function set_currency($json) {
     
 // Parse the API results to retrieve the useful informations
 function parse($subsidiary) {
+    //retrieve availabilities
+    $avail = availability_parsing();
+
     // Retrieve the Availables products from OVH API
     $json = get_from('order/catalog/formatted/dedicated?ovhSubsidiary=', $subsidiary);
     
+    // Set the currency by analyzing the JSON metadatas
     $currency = set_currency($json);
     
     // Parse the API result line by line
-    foreach($json['products'] as $item) {
+    foreach($json['products'] as $item) {        
         // Remove some false positive inside the API, we check if CPU info is at least here
         if ($item['specifications']['cpu']['model'] != "") {
 
@@ -110,6 +128,12 @@ function parse($subsidiary) {
                 if ($dc != "fr"){       
                     // flag image generation
                     $flag = "flag-".$dc.".png"; 
+                    
+                    // Availability generation
+                    // looking for the right key
+                    $key = array_search($item['code'].'-'.$dc, array_column($avail, 'product')) ;
+                    // grabbing the availability key
+                    $availability =  $avail[$key]['availability'];
 
                     $portfolio[] = array(
                         'dc' => $dc,
@@ -122,11 +146,33 @@ function parse($subsidiary) {
                         'storage' => $storage ,
                         'total_storage' => $total_storage ,
                         'traffic' => $item['specifications']['network']['outgoing'],
-                        'public_network' => ($item['specifications']['network']['outgoing']/1000)." Mbps",
-                        'private_network' => ($item['specifications']['network']['privateBandwidth']/1000000)." Gbps",
+                        'public_network' => ($item['specifications']['network']['outgoing']/1000),
+                        'private_network' => ($item['specifications']['network']['privateBandwidth']/1000000),
                         'price' => $item['prices']['default']['renew']['value']." ".$currency,
-                        'webpage' => "https://www.ovh.com/world/dedicated-servers/".$item['family']."/".$item['code'].".xml"
-                    );    
+                        'webpage' => "https://www.ovh.com/world/dedicated-servers/".$item['family']."/".$item['code'].".xml",
+                        'availability' => $availability
+                    ); 
+                    
+                    $i = 0;
+                    foreach($item['derivatives'] as $derivatives) {
+                        $portfolio[] = array(
+                            'dc' => $dc,
+                            'flag' => $flag,
+                            'family' => $item['family'],
+                            'name' => $item['invoiceName'],
+                            'api_name' => $item['derivatives'][$i]['code'],
+                            'cpu' => $item['specifications']['cpu']['brand']." ".$item['specifications']['cpu']['model']." ".$item['specifications']['cpu']['frequency'] ."GHz",
+                            'memory' => $item['specifications']['memory']['size']." GB",
+                            'storage' => $item['derivatives'][$i]['name'] ,
+                            'traffic' => $item['specifications']['network']['outgoing'],
+                            'public_network' => ($item['specifications']['network']['outgoing']/1000),
+                            'private_network' => ($item['specifications']['network']['privateBandwidth']/1000000),
+                            'price' => $item['prices']['default']['renew']['value']+$item['derivatives'][$i]['price']['value']." ".$currency,
+                            'webpage' => "https://www.ovh.com/world/dedicated-servers/".$item['family']."/".$item['code'].".xml",
+                            'availability' => $availability
+                        );
+                        $i++;
+                    }
                 }
   
                 
