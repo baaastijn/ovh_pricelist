@@ -1,5 +1,13 @@
-# OVH PRICELIST
-Build a webpage showing OVH Cloud products pricelist (dedicated servers only for now).
+# OVHcloud pricelist
+Build a webpage showing OVHcloud dedicated servers pricelist.
+Aim is to browse quickly the vast OVHcloud server catalog. I list all the derivatives.
+A server with 2 memory options and 4 storages option will appear in 2x4 = 8 lines.
+
+I collect all the informations from OVHcloud API then make big & dirty PHP loops to aggregate informations.
+Next release should be in ReactJS or Python to use powerful JSON map functions.
+
+Feel free to contribute and give me your feedbacks via http://twitter.com/bastienovh/ .
+
 
 ## Live demo
 You can test it via https://pricelist.ovh
@@ -8,22 +16,154 @@ You can test it via https://pricelist.ovh
 
 
 ## Features
-Thanks to datatables.net scripts, 
-- Table view of all OVH.com dedicated servers
-- Sorting and filtering
-- Export to CSV / EXCEL / PDF
+Thanks to datatables.net scripts :
+* Table view of all OVH.com dedicated servers with hardware, price, availabilities informations.
+* Sorting and filtering
+* Export to CSV / EXCEL / PDF / JSON
 
 
 ## Installation
-All you need is a working PHP5.6 or higher and Internet connectivity. No databases.
-Then go on index.php though your web browser.
-Done
+All you need is a working PHP >=5.6 and Internet connectivity. No databases. No API tokens.
 
-### Tip
-On MacOS, you can start a PHP process via command line natively.
+1. Download source code here.
+2. copy it on your PHP environment.
+3. create a `/cache` folder with read-write access.
+3. Then go on index.php through your web browser.
 
-``` bash
-php -t /Users/myUser/myFolder -S localhost:8000
+Done !
+
+
+## Known limitations
+- Kimsufi ranges are not shown (not available in the API)
+- SoyouStart ranges are not shown (not available in the API)
+- OVHcloud US ranges are not shown (not the sames API calls, need work)
+- HG range derivatives are not shown (too many possibilities for customization)
+- Private Network and Public Network are not shown (need work)
+- CA/US and globally all billing countries with $USD are not shown (not the same API calls, need work)
+
+
+## OVHcloud API structure for servers
+
+### API for availability
+
+For OVHcloud european information system, the API endpoint for retrieving availability is :
+
+https://api.ovh.com/console/#/dedicated/server/datacenter/availabilities#GET
+
+Availabilities unique key is the FQN (Fully Qualified Name), an aggregation of the server PlanCode, memory option, and storage option.
+
+Response class example :
+
+``` JSON
+{
+		"fqn": "19adv01-gdd.ram-32g-ecc-2400.softraid-2x500nvme",
+		"datacenters": [
+			{
+				"availability": "240H",
+				"datacenter": "bhs"
+			},
+			{
+				"availability": "1H-low",
+				"datacenter": "fra"
+			},
+			{
+				"datacenter": "gra",
+				"availability": "1H-low"
+			}
+		],
+		"planCode": "19adv01-gdd",
+		"server": "19adv01",
+		"storage": "softraid-2x500nvme",
+		"memory": "ram-32g-ecc-2400"
+	},
 ```
 
-Then go on http://localhost:8000 and you're done.
+### API for server specifications and prices
+
+For OVHcloud european information system, the API endpoint for retrieving servers specifications and prices is :
+
+https://api.ovh.com/console/#/order/catalog/public/baremetalServers#GET
+
+The JSON structure need some clarifications :
+
+``` JSON
+{
+    -
+    order.catalog.public.DedicatedServerCatalog: {
+        description: "Describes a Dedicated server Catalog inside a Subsidiary"
+        -
+        properties: {
+            +
+            addons: { … }
+            +
+            catalogId: { … }
+            +
+            locale: { … }
+            +
+            planFamilies: { … }
+            +
+            plans: { … }
+            +
+            products: { … }
+        }
+    }
+
+}
+```
+
+* `addons` : memory, storage, network, ... components are detailed as addons. Each addon has a planCode, a product and pricings. Technical specifications are not here.
+* `catalogId` : A version number. when the OVHcloud catalog is updated, the version number is incremented.
+* `locale` : Details the currencyCode used, the subsidiay, and the tax rate (prices may vary based on the country selected)
+* `planFamilies` : not used
+* `plans` : A plan is a combination or a product, addons, attached to pricings.
+* `products` : A product
+
+To sum up, plans and addons are composed of products and pricings, and servers plans will contain addons.
+Only products contains technical specifications.
+
+Here is an example showing nesting between JSON elements :
+
+
+```
++-------------------------------------------------------------------------------------------------+
+|Example : get ADVANCE-1 RAM specifications via OVH.com API /order/catalog/public/baremetalServers|
++-------------------------------------------------------------------------------------------------+
+
++---plans : invoiceName = ADVANCE-1------+
+|                                        |     +---> +---Addons : planCode = ram-32-adv1-----+
+|planCode : 19adv01                      |     |     |                                       |
+|                                        |     |     |invoiceName : 32GB DDR4 ECC 2400MHz    |
+|addons families                         |     |     |                                       |
+|  +---memory+------------------------+  |     |     |pricings                               |
+|  |ram-32g-adv1                      +--------+     |  +---------------------------------+  |
+|  |ram-64g-adv1                      |  |           |  |1 month                          |  |
+|  +----------------------------------+  |           |  +---------------------------------+  |
+|  +--+storage+-----------------------+  |           |  +---------------------------------+  |
+|  |softraid-2x1000nvme-adv           |  |           |  |... (more pricings)              |  |
+|  |softraid-3x1000nvme-adv           |  |           |  +---------------------------------+  |
+|  |... (more addons)                 |  |           |                                       |
+|  |hardraid-4x960ssd-adv             |  |      +----+product : ram-32g-ecc-2400             |
+|  +----------------------------------+  |      |    |                                       |
+|  |---vrack--------------------------+  |      |    +---------------------------------------+
+|  |vrack-bandwidth-100-included      |  |      |
+|  |vrack-bandwidth-1000-option       |  |      |
+|  +----------------------------------+  |      |
+|                                        |      |
+|pricings                                |      +--> +---products : name = ram-32g-ecc-2400--+
+|  +----------------------------------+  |           |                                       |
+|  |setup fees                        |  |           | memory                                |
+|  +----------------------------------+  |           |  +---------------------------------+  |
+|  +----------------------------------+  |           |  |frequency : 2400                 |  |
+|  |1 month                           |  |           |  |ecc : true                       |  |
+|  +----------------------------------+  |           |  |ramType : DDR4                   |  |
+|  +----------------------------------+  |           |  |size : 32                        |  |
+|  |12 months                         |  |           |  +---------------------------------+  |
+|  +----------------------------------+  |           |                                       |
+|  +----------------------------------+  |           +---------------------------------------+
+|  |24 months                         |  |
+|  +----------------------------------+  |
+|                                        |
+|product : 19adv01                       |
+|                                        |
++----------------------------------------+
+```

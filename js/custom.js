@@ -1,7 +1,18 @@
 $(document).ready(function() {
-    $('#sd').DataTable( {
+    
+    
+    // create a second header row
+    $("#sd thead tr").clone(true).appendTo("#sd thead");
+    // Setup - add a text input to each footer cell
+    $('#sd thead tr:eq(1) th').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search" class="column_search" />' );
+    } );
+    
+    var mytable = $('#sd').DataTable( {
+        orderCellsTop: true,
         ordering: true,
-        "order": [[ 9, "asc" ]],
+        "order": [[ 25, "asc" ]],
         paging: false,
         "bLengthChange": false,
         "pageLength": 1500,
@@ -9,9 +20,16 @@ $(document).ready(function() {
         "fixedHeader": true,
         "sPaginationType": "full_numbers",
         "dom": 'Bfrtip',
+        stateSave : false,
         rowGroup: {
             dataSrc: 2
         },
+        "columnDefs": [
+            {
+                "targets": [3,4,8,11,12,13,15,17,18,19,20,21,22,23,24,25,26,27],
+                "visible": false
+            }
+        ],
         "buttons": [
 
             {
@@ -83,6 +101,16 @@ $(document).ready(function() {
             'colvis','copy', 'excel', 'pdf', 'csv'
         ]
     } );
+    
+    // Apply the search
+    $( '#sd thead'  ).on( 'keyup', ".column_search",function () {
+   
+        mytable
+            .column( $(this).parent().index() + ':visible' )
+            .search( this.value )
+            .draw();
+    } );
 
+    
 } );
 

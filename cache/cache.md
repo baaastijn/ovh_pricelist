@@ -1,1 +1,0 @@
-This folder is used for caching JSON catalogs, for each subsidiary.
