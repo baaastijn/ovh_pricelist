@@ -88,22 +88,14 @@ The JSON structure need some clarifications :
 
 ``` JSON
 {
-    -
     order.catalog.public.DedicatedServerCatalog: {
-        description: "Describes a Dedicated server Catalog inside a Subsidiary"
-        -
+        description: "Describes a Dedicated server Catalog inside a Subsidiary",
         properties: {
-            +
-            addons: { … }
-            +
-            catalogId: { … }
-            +
-            locale: { … }
-            +
-            planFamilies: { … }
-            +
-            plans: { … }
-            +
+            addons: { … },
+            catalogId: { … },
+            locale: { … },
+            planFamilies: { … },
+            plans: { … },
             products: { … }
         }
     }
