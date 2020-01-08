@@ -86,7 +86,7 @@ https://api.ovh.com/console/#/order/catalog/public/baremetalServers#GET
 
 The JSON structure need some clarifications :
 
-``` JSON
+```
 {
     order.catalog.public.DedicatedServerCatalog: {
         description: "Describes a Dedicated server Catalog inside a Subsidiary",
@@ -126,17 +126,17 @@ Here is an example showing nesting between JSON elements :
 |planCode : 19adv01                      |     |     |                                       |
 |                                        |     |     |invoiceName : 32GB DDR4 ECC 2400MHz    |
 |addons families                         |     |     |                                       |
-|  +---memory+------------------------+  |     |     |pricings                               |
+|  +---memory-------------------------+  |     |     |pricings                               |
 |  |ram-32g-adv1                      +--------+     |  +---------------------------------+  |
 |  |ram-64g-adv1                      |  |           |  |1 month                          |  |
 |  +----------------------------------+  |           |  +---------------------------------+  |
-|  +--+storage+-----------------------+  |           |  +---------------------------------+  |
+|  +---storage------------------------+  |           |  +---------------------------------+  |
 |  |softraid-2x1000nvme-adv           |  |           |  |... (more pricings)              |  |
 |  |softraid-3x1000nvme-adv           |  |           |  +---------------------------------+  |
 |  |... (more addons)                 |  |           |                                       |
 |  |hardraid-4x960ssd-adv             |  |      +----+product : ram-32g-ecc-2400             |
 |  +----------------------------------+  |      |    |                                       |
-|  |---vrack--------------------------+  |      |    +---------------------------------------+
+|  +---vrack--------------------------+  |      |    +---------------------------------------+
 |  |vrack-bandwidth-100-included      |  |      |
 |  |vrack-bandwidth-1000-option       |  |      |
 |  +----------------------------------+  |      |
