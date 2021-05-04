@@ -41,9 +41,9 @@ $currency = get_currency($plans);
 
     <div class="row">
         <div class="col-9">
-            <h1>OVHcloud dedicated servers pricelist</h1>
+            <h1>OVHcloud baremetal servers pricelist</h1>
         </div>
-        <div class="col-3">
+        <div class="col-3 d-none d-sm-block">
             <span class="float-right">
                 <a href="https://twitter.com/BastienOVH?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @BastienOVH</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
                 <a class="github-button" href="https://github.com/baaastijn/ovh_pricelist/issues" data-color-scheme="no-preference: light; light: light; dark: dark;" data-show-count="true" aria-label="Issue baaastijn/ovh_pricelist on GitHub">Issue</a>
@@ -147,14 +147,14 @@ $currency = get_currency($plans);
                             <td><?php echo $availability['availability'] ?></td>
                             <td><?php 
 
-                                if(in_array($item['range'], array('rise', 'advance', 'infrastructure', 'fs'))){
+                                if(in_array($item['range'], array('rise', 'advance', 'infrastructure', 'fs', 'scale', 'game'))){
                                     ?>
-                                        <a href="<?php echo 'https://www.ovh.com/fr/serveurs_dedies/'.strtolower($item['range']).'/'.strtolower($item['invoiceName']) ?>" target="_blank">Buy</a>
+                                        <a href="<?php echo 'https://www.ovhcloud.com/fr/bare-metal/'.strtolower($item['range']).'/'.strtolower($item['invoiceName']) ?>" target="_blank">Buy</a>
                                     <?php
                                 }
                                 else{
                                     ?>
-                                    <a href="https://www.ovh.com/world/dedicated-servers/" target="_blank">See options</a>
+                                    <a href="https://www.ovhcloud.com/fr/bare-metal/" target="_blank">See options</a>
                                     <?php
                                 };
                                 ?>

@@ -122,13 +122,18 @@ function parse_plans($subsidiary){
 
             // MEMORY + STORAGE addons listing
             // 1 plan can contain multiple storage and memory addons. So we retrieve the addons lists here.
+            // Few plans also contains 1 x system-storage (like SCALE and HG     range)
             // They does not contain technical specifications, we need to retrieve them in another loop.
             foreach($item['addonFamilies'] as $addon_family){
                 if($addon_family['name'] == 'memory'){
                     $memory_addons = $addon_family['addons'];
                 }
-                 if($addon_family['name'] == 'storage' OR $addon_family['name'] == 'disk'){
+                if($addon_family['name'] == 'storage' OR $addon_family['name'] == 'disk'){
                     $storage_addons = $addon_family['addons'];
+                }
+                if($addon_family['name'] == 'system-storage'){
+                    $system_storage = $addon_family['addons'];
+                    //print_r($system_storage);
                 }
             }
 
@@ -149,9 +154,13 @@ function parse_plans($subsidiary){
             }
 
             // each server has multiples pricings (no commitment, 12 or 24 months commitment, etc)
-            // i chose to display only priceing with no commitment
+            // i chose to display only pricing with no commitment
+            // Excel for HGR range where the minimum period is 6 months commitment
             foreach($item['pricings'] as $pricing){
                 if($pricing['commitment'] == 0 && $pricing['mode'] == 'default' && $pricing['interval'] == 1 ){
+                    $server_price = $pricing['price'] / 100000000;
+                }
+                else if($pricing['commitment'] == 6 && $pricing['mode'] == 'degressivity6' && $pricing['interval'] == 1 ){
                     $server_price = $pricing['price'] / 100000000;
                 }
             }
@@ -190,12 +199,23 @@ function parse_plans($subsidiary){
                                 'price' => $addon_price
                             );
                         }
+                        if($addon['planCode'] == $system_storage[0]){
+                            $system_storage = $addon['product'];
+                            //print($system_storage);
+                        }
                     }
 
 
                     // AVAILABILITIES
-                    // availabilities are defined per fully qualified name (FQN) as below :
-                    $fqn = $item['planCode'].".".$memory_specs['product'].".".$storage_specs['product'];
+                    // Only few ranges such as SCALE and HG have a system_storage defined in the fqn. Others don't.
+                    if (!empty($system_storage)){
+                        $fqn = $item['planCode'].".".$memory_specs['product'].".".$storage_specs['product'].".".$system_storage;
+                    }
+                    else{
+                        $fqn = $item['planCode'].".".$memory_specs['product'].".".$storage_specs['product'];
+                    }
+
+
                     // then we retrieve it. We will get a list of datacenters and availabilities
                     $availabilities = get_availabilities($json_availabilities, $fqn);
 
