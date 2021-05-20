@@ -135,6 +135,9 @@ function parse_plans($subsidiary){
                     $system_storage = $addon_family['addons'];
                     //print_r($system_storage);
                 }
+                else{
+                    unset($system_storage);
+                }
             }
 
 
