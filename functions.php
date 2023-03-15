@@ -45,7 +45,7 @@ function get_json_cache($sub){
     
     // starting the cache, different one for each subsidiary (due to prices)
     $cache = 'cache/ovhcloud_servers_pricelist_'.$sub.'.json';
-    $expire = time() -60*10 ; // Expiry time = now - 10 minutes
+    $expire = time() - 60*60*24 ; // Expiry time in seconds = now - 24 hours
 
     // If the cache exists, we return the cached JSON
     if(file_exists($cache) && filemtime($cache) > $expire)
@@ -69,10 +69,10 @@ function get_cache_time($sub){
     date_default_timezone_set('Europe/Paris');
     
     if(file_exists($cache)) {
-        $update = "Last modified: ".date("F d Y H:i:s",filemtime($cache));
+        $update = "Last updated: ".date("F d Y H:i:s",filemtime($cache));
     }
     else {
-        $update = "Last modified: unknown";
+        $update = "Last updated: unknown";
     }
 
     return $update;
@@ -87,32 +87,37 @@ function get_currency($json){
 }
 
 
-// Get availabilities per server and per location.
-function get_availabilities($json_availabilities, $fqn){
-    // Each variation of a server is related to a FQN (planCode.memoryAddon.StorageAddon)
-    // We look after a match, if we find it we return "datacenters" array who contains avalaibility per datacenter
-    foreach($json_availabilities as $item){
-        if ($item['fqn'] == $fqn){
-            return $item['datacenters'];
-        }
-    };
+function parse_plans($subsidiary){
+    
+// Retrieve JSON also for the ECO ranges (Kimsufi / SoYouStart)
+$json_eco = get_from('order/catalog/public/eco?ovhSubsidiary=', $subsidiary);
+    
+$dataset_eco = build_dataset($subsidiary, $json_eco);
+
+
+// Retrieve JSON for the products, plans, addons, pricings from OVH API
+$json_baremetal = get_from('order/catalog/public/baremetalServers?ovhSubsidiary=', $subsidiary);   
+
+$dataset_baremetal = build_dataset($subsidiary, $json_baremetal);
+
+$dataset_final = array_merge($dataset_eco, $dataset_baremetal);  
+    
+// Store the array in a JSON file
+file_put_contents('cache/ovhcloud_servers_pricelist_'.$subsidiary.'.json',json_encode($plans));
+
+return $dataset_final;
+    
 }
 
 // Parse
-function parse_plans($subsidiary){
+function build_dataset($subsidiary,$json){
     
     // before everything, we check if we have the a JSON in cache.
     $cached_plans = get_json_cache($subsidiary);
     if (!empty($cached_plans)) {
         return $cached_plans;
     }
-    else {
-        // Retrieve JSON for the products, plans, addons, pricings from OVH API
-        $json = get_from('order/catalog/public/baremetalServers?ovhSubsidiary=', $subsidiary);
-
-        // Retrieve JSON for the datacenters availabilities
-        $json_availabilities = get_from('dedicated/server/datacenter/availabilities', '');
-        
+    else {        
         // Store the currency code
         $currency = $json['locale']['currencyCode'];
 
@@ -161,9 +166,6 @@ function parse_plans($subsidiary){
             // Excel for HGR range where the minimum period is 6 months commitment
             foreach($item['pricings'] as $pricing){
                 if($pricing['commitment'] == 0 && $pricing['mode'] == 'default' && $pricing['interval'] == 1 ){
-                    $server_price = $pricing['price'] / 100000000;
-                }
-                else if($pricing['commitment'] == 6 && $pricing['mode'] == 'degressivity6' && $pricing['interval'] == 1 ){
                     $server_price = $pricing['price'] / 100000000;
                 }
             }
@@ -218,10 +220,6 @@ function parse_plans($subsidiary){
                         $fqn = $item['planCode'].".".$memory_specs['product'].".".$storage_specs['product'];
                     }
 
-
-                    // then we retrieve it. We will get a list of datacenters and availabilities
-                    $availabilities = get_availabilities($json_availabilities, $fqn);
-
                     // Aggregation of all informations in a array
                     // This array will be the main source to generate HTML Table in index.php
                     // 1 plan = 1 product to show. approx 1300 entries
@@ -235,8 +233,8 @@ function parse_plans($subsidiary){
                         'cpu' => $tech_specs['cpu'],
                         'range' => $tech_specs['range'],
                         'frame' => $tech_specs['frame'],
-                        'price' => $server_price + $storage_specs['price'] + $memory_specs['price'],
-                        'availabilities' => $availabilities
+                        'setupfee' => $server_price,
+                        'price' => $server_price + $storage_specs['price'] + $memory_specs['price']
                     );
 
                 }
@@ -245,16 +243,10 @@ function parse_plans($subsidiary){
         
         // Store the currency at the end of the JSON
         $plans[] = $currency;
-        
-        // Sotre the array in a JSON file
-        file_put_contents('cache/ovhcloud_servers_pricelist_'.$subsidiary.'.json',json_encode($plans));
-        
+                
         // return the array to the main page to generate HTML table
         return $plans;
     } // END of else
-    //print_r($plans);
+
 }
-
-//parse_plans('FR');
-
 ?>

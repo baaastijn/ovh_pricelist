@@ -1,10 +1,10 @@
 # OVHcloud pricelist
-Build a webpage showing OVHcloud dedicated servers pricelist.
-Aim is to browse quickly the vast OVHcloud server catalog. I list all the derivatives.
+Build a webpage showing OVHcloud baremetal servers pricelist.
+Aim is to browse quickly the vast OVHcloud servers catalog. I list all the derivatives.
 A server with 2 memory options and 4 storages option will appear in 2x4 = 8 lines.
 
 I collect all the informations from OVHcloud API then make big & dirty PHP loops to aggregate informations.
-Next release should be in ReactJS or Python to use powerful JSON map functions.
+One day i will move it to something else...
 
 Feel free to contribute and give me your feedbacks via http://twitter.com/bastienovh/ .
 
@@ -17,7 +17,7 @@ You can test it via https://pricelist.ovh
 
 ## Features
 Thanks to datatables.net scripts :
-* Table view of all OVH.com dedicated servers with hardware, price, availabilities informations.
+* Table view of all OVH.com dedicated servers with hardware, price, and few other informations.
 * Sorting and filtering
 * Export to CSV / EXCEL / PDF / JSON
 
@@ -34,55 +34,23 @@ Done !
 
 
 ## Known limitations
-- Kimsufi ranges are not shown (not available in the API)
-- SoyouStart ranges are not shown (not available in the API)
 - OVHcloud US ranges are not shown (not the sames API calls, need work)
-- HG range derivatives are not shown (too many possibilities for customization)
+- HG range derivatives are not fully shown (too many possibilities for customization)
 - Private Network and Public Network are not shown (need work)
 - CA/US and globally all billing countries with $USD are not shown (not the same API calls, need work)
 
 
 ## OVHcloud API structure for servers
 
-### API for availability
-
-For OVHcloud european information system, the API endpoint for retrieving availability is :
-
-https://api.ovh.com/console/#/dedicated/server/datacenter/availabilities#GET
-
-Availabilities unique key is the FQN (Fully Qualified Name), an aggregation of the server PlanCode, memory option, and storage option.
-
-Response class example :
-
-``` JSON
-{
-		"fqn": "19adv01-gdd.ram-32g-ecc-2400.softraid-2x500nvme",
-		"datacenters": [
-			{
-				"availability": "240H",
-				"datacenter": "bhs"
-			},
-			{
-				"availability": "1H-low",
-				"datacenter": "fra"
-			},
-			{
-				"datacenter": "gra",
-				"availability": "1H-low"
-			}
-		],
-		"planCode": "19adv01-gdd",
-		"server": "19adv01",
-		"storage": "softraid-2x500nvme",
-		"memory": "ram-32g-ecc-2400"
-	},
-```
 
 ### API for server specifications and prices
 
-For OVHcloud european information system, the API endpoint for retrieving servers specifications and prices is :
+For OVHcloud european information system, the API endpoints for retrieving servers specifications and prices are :
 
-https://api.ovh.com/console/#/order/catalog/public/baremetalServers#GET
+
+- Classic ranges: https://api.ovh.com/console/#/order/catalog/public/baremetalServers#GET
+- Eco ranges: https://api.ovh.com/console/#/order/catalog/public/eco~GET
+
 
 The JSON structure need some clarifications :
 

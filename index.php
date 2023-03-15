@@ -16,7 +16,7 @@ $currency = get_currency($plans);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>OVHcloud dedicated servers pricelist</title>
+    <title>OVHcloud baremetal servers pricelist</title>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-120246315-1"></script>
     <script>
@@ -58,14 +58,13 @@ $currency = get_currency($plans);
             <div class="text">
                 <p><?php list_subs() ?> /</p>
                 <p class="text-warning"><strong>Warning:</strong> This site is not maintained by or affiliated with OVHcloud. The data shown is not guaranteed to be accurate or current. Please report issues you see on Github. </p>
-                <p>Pricelist generated via OVHcloud API. Some highly customizable ranges like HG are not fully shown here, neither Kimsufi nor SoyouStart.</p>
+                <p>Pricelist generated via OVHcloud API. Some highly customizable ranges like HG are not fully shown here.</p>
                 <p>You can also find here generated <a target="_blank" href="<?php echo "cache/ovhcloud_servers_pricelist_".$subsidiary.".json"; ?>">pricelist JSON</a>, and <a target="_blank" href="https://github.com/baaastijn/ovh_pricelist/">source code on Github</a>.</p>
             </div>
             <hr/>
             <table id='sd' class='table table-striped table-hover table-bordered table-sm display compact' style='width:100%'>
                 <thead class="thead-dark">
                     <tr>
-                        <th>Country / DC</th>
                         <th>Range</th>
                         <th>Name</th>
                         <th>API Name</th>
@@ -93,21 +92,17 @@ $currency = get_currency($plans);
                         <th>Private Network</th>
                         <th>Frame size</th>
                         <th>Frame model</th>
+                        <th>Setup fee (<?php echo $currency; ?>)</th>
                         <th>Monthly price (<?php echo $currency; ?>)</th>
-                        <th>Availability</th>
                         <th>Buy</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     foreach($plans as $item) {
-                        if ( isset($item['availabilities']) ) {
-                             foreach($item['availabilities'] as $availability){
+                        if ($item['price'] > 0){
                     ?>
                         <tr>
-                            <td data-search="<?php echo $availability['datacenter'] ?>" data-order="<?php echo $availability['datacenter'] ?>">
-                                <img src='<?php echo "img/flag-".$availability['datacenter'].".png" ?>' alt='region' width="30"> <?php echo strtoupper($availability['datacenter']); ?>
-                            </td>
                             <td><?php echo strtoupper($item['range']) ?></td>
                             <td><?php echo $item['invoiceName'] ?></td>
                             <td><?php echo $item['planCode'] ?></td>
@@ -143,25 +138,11 @@ $currency = get_currency($plans);
                             <td>see website</td>
                             <td><?php echo $item['frame']['size'] ?></td>
                             <td><?php echo $item['frame']['model'] ?></td>
+                            <td><?php echo $item['setupfee'] ?></td>
                             <td><?php echo $item['price'] ?></td>
-                            <td><?php echo $availability['availability'] ?></td>
-                            <td><?php 
-
-                                if(in_array($item['range'], array('rise', 'advance', 'infrastructure', 'fs', 'scale', 'game'))){
-                                    ?>
-                                        <a href="<?php echo 'https://www.ovhcloud.com/fr/bare-metal/'.strtolower($item['range']).'/'.strtolower($item['invoiceName']) ?>" target="_blank">Buy</a>
-                                    <?php
-                                }
-                                else{
-                                    ?>
-                                    <a href="https://www.ovhcloud.com/fr/bare-metal/" target="_blank">See options</a>
-                                    <?php
-                                };
-                                ?>
-                            </td>
+                            <td><a href="https://www.ovhcloud.com/en-ie/bare-metal/prices/" target="_blank">See options</a></td>
                         </tr>
                     <?php
-                            }
                         }
                     } ?>
                 </tbody>
@@ -170,7 +151,6 @@ $currency = get_currency($plans);
             <div class="card">
                 <div class="card-body bg-light">
                 <p>Project initiated by <a href="https://www.twitter.com/BastienOVH" target="_blank">@BastienOVH</a>, with EC2instance.info as an inspiration.</p>
-                <p><strong>Credentials:</strong> Flags designed by Freepik from Flaticon.</p>
                 </div>
             </div>
         </div>
