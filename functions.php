@@ -2,14 +2,7 @@
 
 // Set the Subsidiary for prices.
 function set_sub(){
-    // default sub = FR. MA, TN, DE, IT, .. available
-    if (isset($_GET['sub'])) {
-        $subsidiary = $_GET['sub'];
-    }
-    else {
-        $subsidiary = 'FR';
-    }
-    return $subsidiary;
+    return (isset($_GET['sub'])) ? $_GET['sub'] : 'FR';
 }
 
 // list subs
@@ -88,30 +81,24 @@ function get_currency($json){
 
 
 function parse_plans($subsidiary){
-    
-// Retrieve JSON also for the ECO ranges (Kimsufi / SoYouStart)
-$json_eco = get_from('order/catalog/public/eco?ovhSubsidiary=', $subsidiary);
-    
-$dataset_eco = build_dataset($subsidiary, $json_eco);
+    // Retrieve JSON also for the ECO ranges (Kimsufi / SoYouStart)
+    $json_eco = get_from('order/catalog/public/eco?ovhSubsidiary=', $subsidiary);
+    $dataset_eco = build_dataset($subsidiary, $json_eco);
 
 
-// Retrieve JSON for the products, plans, addons, pricings from OVH API
-$json_baremetal = get_from('order/catalog/public/baremetalServers?ovhSubsidiary=', $subsidiary);   
+    // Retrieve JSON for the products, plans, addons, pricings from OVH API
+    $json_baremetal = get_from('order/catalog/public/baremetalServers?ovhSubsidiary=', $subsidiary);   
+    $dataset_baremetal = build_dataset($subsidiary, $json_baremetal);
+    $dataset_final = array_merge($dataset_eco, $dataset_baremetal);  
+        
+    // Store the array in a JSON file
+    file_put_contents('cache/ovhcloud_servers_pricelist_'.$subsidiary.'.json',json_encode($dataset_final));
 
-$dataset_baremetal = build_dataset($subsidiary, $json_baremetal);
-
-$dataset_final = array_merge($dataset_eco, $dataset_baremetal);  
-    
-// Store the array in a JSON file
-file_put_contents('cache/ovhcloud_servers_pricelist_'.$subsidiary.'.json',json_encode($plans));
-
-return $dataset_final;
-    
+    return $dataset_final;
 }
 
 // Parse
 function build_dataset($subsidiary,$json){
-    
     // before everything, we check if we have the a JSON in cache.
     $cached_plans = get_json_cache($subsidiary);
     if (!empty($cached_plans)) {
@@ -174,6 +161,9 @@ function build_dataset($subsidiary,$json){
             // ADDONS LOOP
             // to generate a clean HTML table, I need 1 array per server derivative. If a server has 2 memory addons and 8 storage addons, I want to generate 16 lines.
             // It's a choice. I want a table with all the derivatives, directly.
+            if (!is_array($memory_addons) && !is_object($memory_addons)) {
+                continue;
+            }
             foreach($memory_addons as $memory_addon){
                 foreach($storage_addons as $storage_addon){
 

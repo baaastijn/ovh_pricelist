@@ -58,7 +58,7 @@ $currency = get_currency($plans);
             <div class="text">
                 <p><?php list_subs() ?> /</p>
                 <p class="text-warning"><strong>Warning:</strong> This site is not maintained by or affiliated with OVHcloud. The data shown is not guaranteed to be accurate or current. Please report issues you see on Github. </p>
-                <p>Pricelist generated via OVHcloud API. Some highly customizable ranges like HG are not fully shown here.</p>
+                <p>Pricelist generated via OVHcloud API.</p>
                 <p>You can also find here generated <a target="_blank" href="<?php echo "cache/ovhcloud_servers_pricelist_".$subsidiary.".json"; ?>">pricelist JSON</a>, and <a target="_blank" href="https://github.com/baaastijn/ovh_pricelist/">source code on Github</a>.</p>
             </div>
             <hr/>
@@ -100,7 +100,7 @@ $currency = get_currency($plans);
                 <tbody>
                     <?php
                     foreach($plans as $item) {
-                        if ($item['price'] > 0){
+                        if (isset($item['price']) && $item['price'] > 0){
                     ?>
                         <tr>
                             <td><?php echo strtoupper($item['range']) ?></td>
