@@ -75,7 +75,7 @@ function get_cache_time($sub){
 // Set the currency for the prices informations.
 function get_currency($json){
     // Get the currency found inside the JSON
-    $currency = end($json);
+    $currency = json[-1];
     return $currency;
 }
 
@@ -199,7 +199,6 @@ function build_dataset($subsidiary,$json){
                             //print($system_storage);
                         }
                     }
-
 
                     // AVAILABILITIES
                     // Only few ranges such as SCALE and HG have a system_storage defined in the fqn. Others don't.

@@ -17,25 +17,19 @@ $currency = get_currency($plans);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>OVHcloud baremetal servers pricelist</title>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-120246315-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-120246315-1');
-    </script>
     <!-- Datatables.net scripts -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4-4.1.1/jq-3.3.1/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/fh-3.1.6/kt-2.5.1/r-2.2.3/rg-1.1.1/sc-2.0.1/sl-1.3.1/datatables.min.css"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script> -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script> -->
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4-4.1.1/jq-3.3.1/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/fh-3.1.6/kt-2.5.1/r-2.2.3/rg-1.1.1/sc-2.0.1/sl-1.3.1/datatables.min.js"></script>
+
     <!-- Github button -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Custom CSS -->
     <link href="css/main.css" rel="stylesheet">
     <!-- Custom JS -->
     <script src="js/custom.js"></script>
+
 </head>
 <body class="container-fluid">
 
@@ -45,7 +39,6 @@ $currency = get_currency($plans);
         </div>
         <div class="col-3 d-none d-sm-block">
             <span class="float-right">
-                <a href="https://twitter.com/BastienOVH?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @BastienOVH</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
                 <a class="github-button" href="https://github.com/baaastijn/ovh_pricelist/issues" data-color-scheme="no-preference: light; light: light; dark: dark;" data-show-count="true" aria-label="Issue baaastijn/ovh_pricelist on GitHub">Issue</a>
                 <h6><span class="badge badge-secondary"><?php echo get_cache_time($subsidiary); ?></span></h6>
             </span>
@@ -148,11 +141,6 @@ $currency = get_currency($plans);
                 </tbody>
             </table>
 
-            <div class="card">
-                <div class="card-body bg-light">
-                <p>Project initiated by <a href="https://www.twitter.com/BastienOVH" target="_blank">@BastienOVH</a>, with EC2instance.info as an inspiration.</p>
-                </div>
-            </div>
         </div>
     </div>
 
