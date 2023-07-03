@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Removed google fonts
 - Added nginx docker container
 - Added daily python job in container
+- Upload Gzipped json file in S3 (reduced size of json by 30)
 
 ## [2.0.0] - 2023-03-15
 ### Added

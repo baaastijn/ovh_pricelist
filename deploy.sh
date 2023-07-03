@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+# Docker build
+docker build . -t tdr2d/ovh_pricelist:2.1.0
+docker push tdr2d/ovh_pricelist:2.1.0
+
 # S3 configuration
 
 cat << EOF > cors.json
