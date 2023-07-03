@@ -1,5 +1,5 @@
 FROM nginx:stable-alpine3.17-slim
 WORKDIR /job
 COPY compute_plans.py .
-RUN pip3 install boto3
+RUN pip install --no-cache-dir boto3
 
