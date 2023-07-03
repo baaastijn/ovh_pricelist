@@ -1,11 +1,13 @@
-import requests
+import urllib.request
 import json
 import boto3
 import os
-import logging
+import ssl
+from datetime import datetime
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 BASE_URL = 'https://api.ovh.com/1.0/'
-headers = {'Accept': 'application/json'}
 SUBSIDIARIES = ['CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN']
 S3_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY_ID')
 S3_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY')
@@ -13,7 +15,6 @@ S3_BUCKET = os.getenv('S3_BUCKET')
 
 
 def build_dataset(js):
-    currency = js['locale']['currencyCode']
     plans = []
 
     for plan in js['plans']:
@@ -78,8 +79,7 @@ def build_dataset(js):
                         system_storage = addon['product']
                     
                 fqn = '.'.join(list(filter(None, [plan['planCode'], memory_specs['product'], storage_specs['product'], system_storage])))
-
-                plans.append({
+                item = {
                     'planCode': plan['planCode'],
                     'product': plan['product'],
                     'invoiceName': plan['invoiceName'],
@@ -91,32 +91,44 @@ def build_dataset(js):
                     'frame': tech_specs['frame'],
                     'setupfee': server_price,
                     'price': server_price + storage_specs['price'] + memory_specs['price']
-                })
+                }
+                if item['price'] > 0:
+                    plans.append(item)
     return plans
 
 def s3():
-    # list      s3().Bucket(S3_BUCKET).objects
-    # upload    s3().Bucket(S3_BUCKET).upload_file()
-    return boto3.resource(
+    # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#examples
+    return boto3.client(
             "s3",
             endpoint_url="https://s3.gra.io.cloud.ovh.net/",
-            verify=True,
             region_name='gra',
             aws_access_key_id=S3_ACCESS_KEY_ID,
             aws_secret_access_key=S3_SECRET_ACCESS_KEY,
         )
 
+def upload_json(jsonObject, filename, bucket):
+    return s3().put_object(Body=json.dumps(jsonObject), Bucket=bucket, Key=filename, ContentType='application/json', ACL='public-read')
+
+
+def get_json(url):
+    req = urllib.request.Request(url, headers={'Accept': 'application/json'}) 
+    return json.loads(urllib.request.urlopen(req).read().decode("utf-8"))
+    
 
 if __name__ == '__main__':
     for sub in SUBSIDIARIES:
-        data1 = requests.get(f'{BASE_URL}order/catalog/public/eco?ovhSubsidiary={sub}', headers=headers).json()
-        data2 = requests.get(f'{BASE_URL}order/catalog/public/baremetalServers?ovhSubsidiary={sub}', headers=headers).json()
+        data1 = get_json(f'{BASE_URL}order/catalog/public/eco?ovhSubsidiary={sub}')
+        data2 = get_json(f'{BASE_URL}order/catalog/public/baremetalServers?ovhSubsidiary={sub}')
 
         dataset = build_dataset(data1)
         dataset += build_dataset(data2)
 
         assert len(dataset) > 1000, "Must have more than 1k refs"
-        filename = f'ovh_pricing_plans_{sub}.json'
-        json.dump(dataset, open(filename, 'w'))
-        s3().Bucket(S3_BUCKET).upload_file(file)
+        filename = f'ovh_pricing_plans_{sub.lower()}.json'
 
+        upload_json({
+            'plans': dataset,
+            'date': datetime.now().isoformat(),
+            'currency': data1['locale']['currencyCode']
+        }, filename, S3_BUCKET)
+        print(f'INFO: Uploaded {filename}')
