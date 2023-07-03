@@ -1,5 +1,6 @@
-FROM python:3.10-slim-bullseye
+FROM nginx:stable-alpine3.17-slim
 WORKDIR /job
 COPY compute_plans.py .
-RUN pip install --no-cache-dir boto3
+RUN apk add py3-pip && \
+    pip install --no-cache-dir boto3
 
