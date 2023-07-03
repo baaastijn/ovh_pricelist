@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  name: compute-plans
+  namespace: ovh-pricelist
+spec:
+  schedule: 0 1 * * *
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    metadata:
+      name: compute-plans
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          containers:
+          - command:
+            - python3
+            - compute_plans.py
+            image: tdr2d/ovh_pricelist:2.1.0-job
+            name: compute-plans
+            envFrom:
+            - secretRef:
+                name: s3-share-secrets
+          restartPolicy: Never
