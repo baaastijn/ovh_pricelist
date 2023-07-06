@@ -39,4 +39,4 @@ docker run -it --rm \
     -e S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY} \
     tdr2d/ovh_pricelist:${VERSION}-job env && python3 compute_plans.py
 # deploy it
-kubectl apply -f cronjob.yml
+kubectl apply -f jobs/cronjob.yml

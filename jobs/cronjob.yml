@@ -5,7 +5,7 @@ metadata:
   name: compute-plans
   namespace: ovh-pricelist
 spec:
-  schedule: 0 1 * * *
+  schedule: 0 1 * * 1
   concurrencyPolicy: Forbid
   jobTemplate:
     metadata:
