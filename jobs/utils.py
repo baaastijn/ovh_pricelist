@@ -7,11 +7,13 @@ import urllib.request
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
-SUBSIDIARIES = ['CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN']
+# SUBSIDIARIES = ['CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN', 'US']
+SUBSIDIARIES = ['US']
 S3_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY_ID')
 S3_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY')
 S3_BUCKET = os.getenv('S3_BUCKET')
-
+API_US = 'https://api.us.ovhcloud.com/v1/order/catalog/public/'
+API_EU = 'https://api.ovh.com/v1/order/catalog/public/'
 
 def s3():
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#examples

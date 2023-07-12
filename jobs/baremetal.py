@@ -1,5 +1,5 @@
 from datetime import datetime
-from .utils import *
+from utils import *
 
 def build_dataset(js):
     plans = []
@@ -86,14 +86,18 @@ def build_dataset(js):
 
 if __name__ == '__main__':
     for sub in SUBSIDIARIES:
-        data1 = get_json(f'https://api.ovh.com/1.0/order/catalog/public/eco?ovhSubsidiary={sub}')
-        data2 = get_json(f'https://api.ovh.com/1.0/order/catalog/public/baremetalServers?ovhSubsidiary={sub}')
+        if sub == 'US':
+            data1 = get_json(f'{API_US}eco?ovhSubsidiary={sub}')
+            data2 = get_json(f'{API_US}baremetalServers?ovhSubsidiary={sub}')
+        else:
+            data1 = get_json(f'{API_EU}eco?ovhSubsidiary={sub}')
+            data2 = get_json(f'{API_EU}baremetalServers?ovhSubsidiary={sub}')
 
         dataset = build_dataset(data1)
         dataset += build_dataset(data2)
 
         assert len(dataset) > 1000, "Must have more than 1k refs"
-        filename = f'ovh_pricing_plans_{sub.lower()}.json'
+        filename = f'baremetal_prices/{sub.lower()}.json'
 
         upload_gzip_json({
             'plans': dataset,
