@@ -17,8 +17,8 @@ spec:
           containers:
           - command:
             - python3
-            - compute_plans.py
-            image: tdr2d/ovh_pricelist:2.1.0-job
+            - baremetal.py
+            image: tdr2d/ovh_pricelist:2.2.0-job
             name: compute-plans
             envFrom:
             - secretRef:
