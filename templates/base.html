@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta rel="icon" href="favicon.ico" type="image/gif">
+<title>OVHcloud Price list | All Official OVH Prices</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/b-2.4.1/b-html5-2.4.1/datatables.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/b-2.4.1/b-html5-2.4.1/datatables.min.js"></script>
+<link href="styles.css" rel="stylesheet"/>
+</head>
+<body data-bs-theme="dark">
+<nav>
+    <svg width="79" height="41" viewBox="0 0 79 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M73.14 2.69C76.9967 9.6413 78.7003 17.5821 78.0344 25.5036C77.3685 33.4252 74.3631 40.9701 69.4 47.18H47.96L54.56 35.51H45.83L56.12 17.38H64.9L73.14 2.71V2.69ZM30.8 47.18H8.94001C3.88432 40.9972 0.816836 33.4299 0.140434 25.4719C-0.535968 17.5139 1.21034 9.53738 5.15001 2.59L19.33 27.22L34.96 0H57.96L30.81 47.16L30.8 47.18Z"/>
+    </svg>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <h1 style="margin: 0;font-size: 1.8rem;">OVHcloud Pricelist</h2>
+
+    <ul class="nav nav-pills" style="margin: 0 15px">
+        <li class="nav-item"><a class="nav-link active" href="index.html" title="Get the list of all available Baremetal servers at OVHCloud">Baremetal Cloud Servers</a></li>
+        <!-- <li class="nav-item"><a class="nav-link" href="privatecloud.html">Private Cloud</a></li> -->
+        <!-- <li class="nav-item"><a class="nav-link" href="publiccloud.html">Public Cloud</a></li> -->
+    </ul>
+</nav>
+<article id="main" class="container-fluid">
+    <button type="button" class="btn btn-dark" id="btn-back-to-top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+            </svg>
+    </button>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+        <div class="text" id="sub-list"></div>
+        <div id="cache-time" class=""></div> 
+    </div>
+    <br>
+<script type="text/javascript">
+
+    // VARS
+    var DOWNLOAD_SVG = `<svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path opacity="0.5" d="M3 15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+    var SUBSIDIARIES = ['CA', 'CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN','US'];
+    
+    // Back to Top
+    let mybutton = document.getElementById("btn-back-to-top");
+    let scrollable = document.getElementById('main');
+    function scrollFunction(el) {
+        mybutton.style.display = el.scrollTop > 100 ? "block" : none;
+    }
+    function backToTop() { scrollable.scrollTop = 0; scrollable.scrollTop = 0; }
+    scrollable.onscroll = function () { scrollFunction(scrollable); };
+    mybutton.addEventListener("click", backToTop);
+    
+    // SUB get parameter
+    var sub = new URLSearchParams(location.search).get('sub') || 'FR';
+    document.getElementById('sub-list').innerHTML = SUBSIDIARIES.reduce((acc, s, idx) => acc + `${idx != 0 ? '/' :''} <a href="${location.pathname}?sub=${s}">${s == sub ? '<b>'+s+'</b>' : s}</a> `, '');
+    
+</script>
+    {% block content %}{% endblock %}
+</article>
+
+</div>
+</body>
+</html>

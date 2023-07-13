@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+
+<table id="sd" class="table nowrap table-hover" style="display: none; width: 100%;">
+    <thead id="sd-thead" class="thead-dark"></thead>
+    <tbody></tbody>
+</table>
+
+<!-- Baremetal -->
+<script type="text/javascript">
+var INVISIBLE_COLUMNS = [0,6,7,9,10,11];
+
+// Fetch DATA
+var cache_bust = new Date().toDateString().replaceAll(' ','');
+var url = `https://share.s3.gra.io.cloud.ovh.net/baremetal_prices/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`
+fetch(url).then(res => res.json()).then(res => {
+document.getElementById('cache-time').innerText = 'Last updated: ' + new Date(res.date).toString();
+
+// Set header
+document.querySelector('#sd > thead').innerHTML =`<tr>
+    <th>Range</th>
+    <th>Name</th>
+    <th>CPU model</th>
+    <th>CPU cores</th>
+    <th>CPU threads</th>
+    <th>CPU speed (GHz)</th>
+    <th>CPU score</th>
+    <th>RAM summary</th>
+    <th>RAM (GB)</th>
+    <th>RAM clock speed (GHz)</th>
+    <th>RAM type</th>
+    <th>Storage summary</th>
+    <th>Storage RAID type</th>
+    <th>Storage (TB)</th>
+    <th>Disk #1 amount</th>
+    <th>Disk #1 capacity</th>
+    <th>Disk #1 techno</th>
+    <th>Storage price per TB (${res.currency})</th>
+    <th>Monthly price (${res.currency})</th>
+</tr>`;
+
+// Set content
+document.querySelector('#sd > tbody').innerHTML = res.plans.reduce((acc, item) => {
+    var storage_amount = item['storageSpecs']['specifications']['disks'][0]['number'] * item['storageSpecs']['specifications']['disks'][0]['capacity'];
+    
+    // If second disk exist, we sum the amount of GB.
+    if (item['storageSpecs']['specifications']['disks'].length > 1 && item['storageSpecs']['specifications']['disks'][1]['number'] != '') {
+        storage_amount += item['storageSpecs']['specifications']['disks'][1]['number'] * item['storageSpecs']['specifications']['disks'][1]['capacity'];
+    }
+    storage_amount = Math.round(storage_amount / 1000)
+    
+    var range = item['range'] == 'hgr' ? 'high-grade' : item['range'];
+    var server = item['invoiceName'].toLowerCase().replace('advance', 'adv').split(' ')[0]
+    var url = `https://www.ovhcloud.com/en-ie/bare-metal/${range}/${server}/`;
+    if (item['range'].toLowerCase() == 'kimsufi' || item['range'] == 'soyoustart') {
+        url = `https://eco.ovhcloud.com/`;
+    }
+    
+    // if (item['invoiceName'].split('-').length > 3) {
+        // return acc;
+    // }
+
+    return acc + `<tr>
+    <td>${item['range'].toUpperCase()} </td>
+    <td><a href="${url}" target="_blank">${item['invoiceName']} </a></td>
+    <td>${item['cpu']['brand']} ${item['cpu']['model']}</td>
+    <td>${item['cpu']['cores']}</td>
+    <td>${item['cpu']['threads']}</td>
+    <td>${item['cpu']['frequency']}</td>
+    <td>${item['cpu']['score']}</td>
+    <td>${item['memory']['invoiceName']}</td>
+    <td>${item['memory']['specifications']['size']}</td>
+    <td>${item['memory']['specifications']['frequency']}</td>
+    <td>${item['memory']['specifications']['ramType']}</td>
+    <td>${item['storageSpecs']['invoiceName']}</td>
+    <td>${item['storageSpecs']['specifications']['raid']}</td>
+    <td>${storage_amount}</td>
+    <td>${item['storageSpecs']['specifications']['disks'][0]['number']}</td>
+    <td>${item['storageSpecs']['specifications']['disks'][0]['capacity']}</td>
+    <td>${item['storageSpecs']['specifications']['disks'][0]['technology']}</td>
+    <td>${(item['price'] / storage_amount).toFixed(2)}</td>
+    <td>${item['price'].toFixed(2)}</td>
+</tr>`;
+}, '');
+
+
+$(document).ready(function() {
+    $('#sd thead tr')
+    .clone(true)
+    .addClass('filters')
+    .appendTo('#sd thead');
+
+var mytable = $('#sd').DataTable( {
+    initComplete: function () {
+        var api = this.api();
+        
+        // Set sticky action
+        const el = document.getElementById("sd-thead");
+        const observer = new IntersectionObserver( 
+            ([e]) => e.target.classList.toggle("stuck", e.intersectionRatio < 1),
+            {threshold: [1] }
+        );
+        observer.observe(el);
+
+        $('#sd').show();
+        api.columns().eq(0).each(function (colIdx) {
+            if (INVISIBLE_COLUMNS.indexOf(colIdx) != -1) {
+                return;
+            }
+            var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+            var title = $(cell).text();
+            var width = $(cell).width() - 15;
+            $(cell).html(`<input class="form-control form-control-sm" type="text" placeholder="${title}" style="max-width: ${width}px; font-size: 0.75rem;"/><div style="height: 0px"></div>`);
+            $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                .off('keyup change')
+                .on('change', function (e) {
+                    $(this).attr('title', $(this).val());
+                    var regexr = '({search})';
+                    var cursorPosition = this.selectionStart;
+                    api.column(colIdx)
+                        .search(
+                            this.value != '' ? regexr.replace('{search}', '(((' + this.value + ')))') : '',
+                            this.value != '',
+                            this.value == ''
+                        )
+                        .draw();
+                })
+                .on('keyup', function (e) {
+                    e.stopPropagation();
+                    $(this).trigger('change');
+                    $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                });
+            })
+        },
+    header: true,
+    ordering: true,
+    orderCellsTop: true,
+    order: [[ 18, "asc" ]],
+    paging: false,
+    dom: 'Bfrtip',
+    columnDefs: [{ "targets": INVISIBLE_COLUMNS, "visible": false }, {'targets': [17, 18], 'type': 'num'}],
+    buttons: [
+        { extend: 'excel', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to Excel`, exportOptions: { modifier: { page: 'current' }, action: () => api.e } },
+        { extend: 'csv', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to CSV`, exportOptions: { modifier: { page: 'current' } } }
+    ]
+} );
+
+} );
+})
+</script>
+
+{% endblock %}
