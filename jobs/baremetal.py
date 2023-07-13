@@ -86,13 +86,14 @@ def build_dataset(js):
 
 if __name__ == '__main__':
     for sub in SUBSIDIARIES:
+        base_api = API_EU
         if sub == 'US':
-            data1 = get_json(f'{API_US}eco?ovhSubsidiary={sub}')
-            data2 = get_json(f'{API_US}baremetalServers?ovhSubsidiary={sub}')
-        else:
-            data1 = get_json(f'{API_EU}eco?ovhSubsidiary={sub}')
-            data2 = get_json(f'{API_EU}baremetalServers?ovhSubsidiary={sub}')
+            base_api = API_US
+        elif sub == 'CA':
+            base_api = API_CA
 
+        data1 = get_json(f'{base_api}eco?ovhSubsidiary={sub}')
+        data2 = get_json(f'{base_api}baremetalServers?ovhSubsidiary={sub}')
         dataset = build_dataset(data1)
         dataset += build_dataset(data2)
 

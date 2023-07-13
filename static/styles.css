@@ -1,0 +1,60 @@
+body {
+    margin: 0 0;
+    --bs-body-color: #eee !important;
+    color: var(--bs-body-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 0.8em;
+    height: 100%;
+    overflow: hidden;
+}
+input.form-control, .form-control::placeholder, input.form-control, .form-control:focus {
+    color: var(--bs-body-color);
+    background-color: transparent;
+}
+nav {
+    display: flex;
+    align-items: center;
+    height: 55px;
+    padding: 0 15px;
+    background: linear-gradient(to bottom,rgba(5, 0, 38, 0.61), rgba(0, 0, 0, 0.87)), url("2019_FR_IMAGE_0910.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+a{ text-decoration: none;}
+article {
+    height: calc(100vh - 55px);
+    padding: 5px 15px;
+    overflow-y: scroll; height: calc(100vh - 48px);
+    background-color: rgb(2, 11, 89);
+    background: linear-gradient(to right bottom,rgba(5, 0, 38, 0.74), rgba(2, 11, 89, 0.44)), url("2019_FR_IMAGE_0910.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#btn-back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    z-index: 12;
+}
+
+/* Custom datatable updates */
+thead {
+    position: sticky;
+    z-index: 12;
+    top: -6px;
+}
+thead.stuck {
+    background-color: rgb(2, 11, 89);
+    background: linear-gradient(to right bottom,rgb(2, 11, 89,0.8), rgb(0,0,0,1));
+}
+.table {
+    --bs-table-bg: transparent !important;
+}
+th.sorting::before, th.sorting::after {opacity: 0.4 !important}
+table.dataTable thead > tr > th.sorting_asc::before, table.dataTable thead > tr > th.sorting_desc::after, table.dataTable thead > tr > td.sorting_asc::before, table.dataTable thead > tr > td.sorting_desc::after {opacity: 0.7!important}
+th.sorting, tr.filters > th {white-space: break-spaces !important;}
+.dt-buttons {margin-bottom: -47px;}
