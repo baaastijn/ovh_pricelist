@@ -1,6 +1,4 @@
-FROM nginx:stable-alpine3.17-slim
+FROM python:3.10.12-alpine3.18
 WORKDIR /job
 COPY *.py .
-RUN apk add py3-pip && \
-    pip install --no-cache-dir boto3
-
+RUN pip install --no-cache-dir boto3

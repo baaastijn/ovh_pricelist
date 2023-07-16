@@ -6,13 +6,12 @@
     <tbody></tbody>
 </table>
 
-<!-- Baremetal -->
 <script type="text/javascript">
 var INVISIBLE_COLUMNS = [0,6,7,9,10,11];
 
 // Fetch DATA
 var cache_bust = new Date().toDateString().replaceAll(' ','');
-var url = `https://share.s3.gra.io.cloud.ovh.net/baremetal_prices/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`
+var url = `https://share.s3.gra.io.cloud.ovh.net/baremetal_prices/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`;
 fetch(url).then(res => res.json()).then(res => {
 document.getElementById('cache-time').innerText = 'Last updated: ' + new Date(res.date).toString();
 

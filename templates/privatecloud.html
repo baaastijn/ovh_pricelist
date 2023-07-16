@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<table id="sd" class="table nowrap table-hover" style="display: none; width: 100%;">
+    <thead id="sd-thead" class="thead-dark"><tr></tr></thead>
+    <tbody></tbody>
+</table>
+
+<script type="text/javascript">
+
+function capitalize(text) {
+    return text.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ');
+}
+
+var cache_bust = new Date().toDateString().replaceAll(' ','');
+var url = ` https://share.s3.gra.io.cloud.ovh.net/privatecloud/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`;
+fetch(url).then(res => res.json()).then(res => {
+    console.log(res)
+
+    var COLUMNS = [
+        "Range",
+        "Type",
+        "Description",
+        `Monthly Price without local taxes (${res.locale.currencyCode})`
+    ];
+    document.querySelector('#sd-thead > tr').innerHTML = COLUMNS.map((x) => `<th>${x}</th>`).join('');
+
+    var rows = ``;
+    for (var range in  res.ranges) {
+        for (var type in res.ranges[range]) {
+            if (type == 'regions') {
+                continue;
+            }
+
+            for (var i in res.ranges[range][type]) {
+                var row = res.ranges[range][type][i];
+                var description = 'description' in row ? row['description'] : row['invoiceName'];
+                if (type == 'public_ip') {
+                    description = row['invoiceName'] + ' - ' + description;
+                }
+                rows += `<tr>
+                <td>${range.toUpperCase()}</td>
+                <td>${capitalize(type.replaceAll('_', ' '))}</td>
+                <td>${description}</td>
+                <td>${'price_default' in row ? row['price_default'] : row['price']}</td>
+                </tr>
+            `;
+            }
+        }
+    }
+    document.querySelector('#sd > tbody').innerHTML = rows;
+    $('#sd').show();
+    $('#sd').DataTable({
+        header: true,
+        ordering: true,
+        orderCellsTop: true,
+        // order: [[ 2, "asc" ]],
+        paging: false,
+        dom: 'Bfrtip',
+        columnDefs: [{ "targets": [], "visible": false }, {'targets': [3], 'type': 'num'}],
+        buttons: [
+            { extend: 'excel', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to Excel`, exportOptions: { modifier: { page: 'current' }, action: () => api.e } },
+            { extend: 'csv', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to CSV`, exportOptions: { modifier: { page: 'current' } } }
+        ]
+    })
+})
+
+</script>
+
+{% endblock %}

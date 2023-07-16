@@ -20,8 +20,8 @@
     <h1 style="margin: 0;font-size: 1.8rem;">OVHcloud Pricelist</h2>
 
     <ul class="nav nav-pills" style="margin: 0 15px">
-        <li class="nav-item"><a class="nav-link active" href="index.html" title="Get the list of all available Baremetal servers at OVHCloud">Baremetal Cloud Servers</a></li>
-        <!-- <li class="nav-item"><a class="nav-link" href="privatecloud.html">Private Cloud</a></li> -->
+        <li class="nav-item"><a class="nav-link" href="index.html" title="Get the list of all available Baremetal servers at OVHCloud">Baremetal Cloud Servers</a></li>
+        <li class="nav-item"><a class="nav-link" href="privatecloud.html">Private Cloud</a></li>
         <!-- <li class="nav-item"><a class="nav-link" href="publiccloud.html">Public Cloud</a></li> -->
     </ul>
 </nav>
@@ -36,7 +36,7 @@
         <div id="cache-time" class=""></div> 
     </div>
     <br>
-<script type="text/javascript">
+<script type="text/javascript" >
 
     // VARS
     var DOWNLOAD_SVG = `<svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,20 +44,20 @@
     <path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
     var SUBSIDIARIES = ['CA', 'CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN','US'];
+    var sub = new URLSearchParams(location.search).get('sub') || 'FR';
     
     // Back to Top
+
+document.addEventListener("DOMContentLoaded", function() {
     let mybutton = document.getElementById("btn-back-to-top");
-    let scrollable = document.getElementById('main');
-    function scrollFunction(el) {
-        mybutton.style.display = el.scrollTop > 100 ? "block" : none;
-    }
-    function backToTop() { scrollable.scrollTop = 0; scrollable.scrollTop = 0; }
-    scrollable.onscroll = function () { scrollFunction(scrollable); };
-    mybutton.addEventListener("click", backToTop);
+    document.getElementById('main').onscroll = function () { 
+        mybutton.style.display = document.getElementById('main').scrollTop > 100 ? "block" : none;
+    };
+    mybutton.addEventListener("click", function () { document.getElementById('main').scrollTop = 0; });
     
     // SUB get parameter
-    var sub = new URLSearchParams(location.search).get('sub') || 'FR';
     document.getElementById('sub-list').innerHTML = SUBSIDIARIES.reduce((acc, s, idx) => acc + `${idx != 0 ? '/' :''} <a href="${location.pathname}?sub=${s}">${s == sub ? '<b>'+s+'</b>' : s}</a> `, '');
+});
     
 </script>
     {% block content %}{% endblock %}
