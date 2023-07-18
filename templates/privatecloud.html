@@ -9,10 +9,21 @@
 <script type="text/javascript">
 
 function capitalize(text) {
-    return text.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ');
+    return text.split(' ').map(x => x.length > 3 ? x.charAt(0).toUpperCase() + x.slice(1) : x.toUpperCase()).join(' ');
+}
+
+function row_header(range, type, desc, row) {
+    return `<tr>
+                <td>${range.toUpperCase()}</td>
+                <td>${capitalize(type.replaceAll('_', ' '))}</td>
+                <td>${desc}</td>
+                <td>${'price_default' in row ? row['price_default'] : row['price']}</td>
+    </tr>`;
 }
 
 var cache_bust = new Date().toDateString().replaceAll(' ','');
+var exportTitle = `Pricelist.ovh - Private Cloud - ${cache_bust}`;
+
 var url = ` https://share.s3.gra.io.cloud.ovh.net/privatecloud/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`;
 fetch(url).then(res => res.json()).then(res => {
     console.log(res)
@@ -26,7 +37,7 @@ fetch(url).then(res => res.json()).then(res => {
     document.querySelector('#sd-thead > tr').innerHTML = COLUMNS.map((x) => `<th>${x}</th>`).join('');
 
     var rows = ``;
-    for (var range in  res.ranges) {
+    for (var range in res.ranges) {
         for (var type in res.ranges[range]) {
             if (type == 'regions') {
                 continue;
@@ -38,29 +49,31 @@ fetch(url).then(res => res.json()).then(res => {
                 if (type == 'public_ip') {
                     description = row['invoiceName'] + ' - ' + description;
                 }
-                rows += `<tr>
-                <td>${range.toUpperCase()}</td>
-                <td>${capitalize(type.replaceAll('_', ' '))}</td>
-                <td>${description}</td>
-                <td>${'price_default' in row ? row['price_default'] : row['price']}</td>
-                </tr>
-            `;
+                rows += row_header(range, type, description, row);
             }
         }
     }
+
+    for (var type in res.other) {
+        for (var i in res.other[type]) {
+            var row = res.other[type][i];
+            rows += row_header('', type, 'description' in row ? row['description'] : row['invoiceName'], row)
+        }
+    }
+
     document.querySelector('#sd > tbody').innerHTML = rows;
     $('#sd').show();
     $('#sd').DataTable({
         header: true,
         ordering: true,
         orderCellsTop: true,
-        // order: [[ 2, "asc" ]],
+        order: [[ 0, "desc" ]],
         paging: false,
         dom: 'Bfrtip',
         columnDefs: [{ "targets": [], "visible": false }, {'targets': [3], 'type': 'num'}],
         buttons: [
-            { extend: 'excel', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to Excel`, exportOptions: { modifier: { page: 'current' }, action: () => api.e } },
-            { extend: 'csv', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to CSV`, exportOptions: { modifier: { page: 'current' } } }
+            { extend: 'excel', title: exportTitle, attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to Excel`, exportOptions: { modifier: { page: 'current' }, action: () => api.e } },
+            { extend: 'csv', title: exportTitle, attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to CSV`, exportOptions: { modifier: { page: 'current' } } }
         ]
     })
 })

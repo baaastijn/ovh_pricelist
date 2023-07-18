@@ -13,16 +13,19 @@
 </head>
 <body data-bs-theme="dark">
 <nav>
-    <svg width="79" height="41" viewBox="0 0 79 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M73.14 2.69C76.9967 9.6413 78.7003 17.5821 78.0344 25.5036C77.3685 33.4252 74.3631 40.9701 69.4 47.18H47.96L54.56 35.51H45.83L56.12 17.38H64.9L73.14 2.71V2.69ZM30.8 47.18H8.94001C3.88432 40.9972 0.816836 33.4299 0.140434 25.4719C-0.535968 17.5139 1.21034 9.53738 5.15001 2.59L19.33 27.22L34.96 0H57.96L30.81 47.16L30.8 47.18Z"/>
-    </svg>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <h1 style="margin: 0;font-size: 1.8rem;">OVHcloud Pricelist</h2>
+    <a class="navbar-brand" href="/" style="display: flex">
+        <svg width="79" height="41" viewBox="0 0 79 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M73.14 2.69C76.9967 9.6413 78.7003 17.5821 78.0344 25.5036C77.3685 33.4252 74.3631 40.9701 69.4 47.18H47.96L54.56 35.51H45.83L56.12 17.38H64.9L73.14 2.71V2.69ZM30.8 47.18H8.94001C3.88432 40.9972 0.816836 33.4299 0.140434 25.4719C-0.535968 17.5139 1.21034 9.53738 5.15001 2.59L19.33 27.22L34.96 0H57.96L30.81 47.16L30.8 47.18Z"/>
+        </svg>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <h1 style="margin: 0;font-size: 1.8rem;line-height: 1.5;">OVHcloud Pricelist</h2>
+    </a>
 
     <ul class="nav nav-pills" style="margin: 0 15px">
         <li class="nav-item"><a class="nav-link" href="index.html" title="Get the list of all available Baremetal servers at OVHCloud">Baremetal Cloud Servers</a></li>
         <li class="nav-item"><a class="nav-link" href="privatecloud.html">Private Cloud</a></li>
-        <!-- <li class="nav-item"><a class="nav-link" href="publiccloud.html">Public Cloud</a></li> -->
+        <li class="nav-item"><a class="nav-link" href="publiccloud.html">Public Cloud</a></li>
     </ul>
 </nav>
 <article id="main" class="container-fluid">
@@ -36,7 +39,7 @@
         <div id="cache-time" class=""></div> 
     </div>
     <br>
-<script type="text/javascript" >
+<script type="text/javascript">
 
     // VARS
     var DOWNLOAD_SVG = `<svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,16 +48,29 @@
     </svg>`;
     var SUBSIDIARIES = ['CA', 'CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN','US'];
     var sub = new URLSearchParams(location.search).get('sub') || 'FR';
-    
-    // Back to Top
+</script>
+<script type="text/javascript" defer>
 
 document.addEventListener("DOMContentLoaded", function() {
     let mybutton = document.getElementById("btn-back-to-top");
     document.getElementById('main').onscroll = function () { 
-        mybutton.style.display = document.getElementById('main').scrollTop > 100 ? "block" : none;
+        mybutton.style.display = document.getElementById('main').scrollTop > 100 ? 'block' : 'none';
     };
     mybutton.addEventListener("click", function () { document.getElementById('main').scrollTop = 0; });
     
+    // NAV Router Active links
+        document.querySelectorAll('.nav-link').forEach((x) => {
+        x.classList.toggle('active', location.href.includes(x.href))
+    });
+
+    // Set sticky action
+    const el = document.getElementById("sd-thead");
+    const observer = new IntersectionObserver( 
+        ([e]) => e.target.classList.toggle("stuck", e.intersectionRatio < 1),
+        {threshold: [1] }
+    );
+    observer.observe(el);
+
     // SUB get parameter
     document.getElementById('sub-list').innerHTML = SUBSIDIARIES.reduce((acc, s, idx) => acc + `${idx != 0 ? '/' :''} <a href="${location.pathname}?sub=${s}">${s == sub ? '<b>'+s+'</b>' : s}</a> `, '');
 });

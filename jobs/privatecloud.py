@@ -125,7 +125,7 @@ def parse_windows_licenses(plan_codes, list_of_cores):
             invoiceName = ' '.join(map(lambda x: x.capitalize(), p['invoiceName'].split('-')))
             computed_plans.append({
                 'invoiceName': invoiceName + f' - {cores} Cores',
-                'price': p['price_default']
+                'price': p['price_default'] * cores
             })
     return computed_plans
 
@@ -153,8 +153,8 @@ def get_veeam_and_zerto_licenses(sub='FR'):
         except urllib.error.HTTPError: # 404 not found
             veeam_price = 0
     # print(sub, veeam_price, zerto_price)
-    return [{'invoiceName': 'Licence Veeam Entreprise plus - per VM', 'price': veeam_price}] if veeam_price > 0 else [], \
-        [{'invoiceName': 'Zerto license - per VM', 'price': zerto_price}] if zerto_price > 0 else []
+    return [{'invoiceName': 'Veeam Entreprise plus License - per VM', 'price': veeam_price}] if veeam_price > 0 else [], \
+        [{'invoiceName': 'Zerto License - per VM', 'price': zerto_price}] if zerto_price > 0 else []
 
 def get_pcc_ranges_and_windows_licenses(sub='FR'):
     pcc_plans = get_json(f'{get_base_api(sub)}/1.0/order/catalog/formatted/privateCloud?ovhSubsidiary={sub}')
@@ -249,13 +249,13 @@ if __name__ == '__main__':
             'other': {
                 'occ': get_occ_options(sub),
                 'ip_lb': get_ip_lb(sub),
-                'windows_licence': [],
-                'veeam_licence': [],
-                'zerto_licence': [],
+                'windows_license': [],
+                'veeam_license': [],
+                'zerto_license': [],
                 'ps': []
             }
         }
-        products['ranges'], products['other']['windows_licences'] = get_pcc_ranges_and_windows_licenses(sub)
+        products['ranges'], products['other']['windows_license'] = get_pcc_ranges_and_windows_licenses(sub)
         products['other']['ps'] = get_ps(sub)
         products['other']['veeam_license'], products['other']['zerto_license'] = get_veeam_and_zerto_licenses(sub)
         upload_gzip_json(products, f'privatecloud/{sub.lower()}.json', S3_BUCKET)

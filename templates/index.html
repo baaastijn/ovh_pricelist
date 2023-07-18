@@ -11,6 +11,7 @@ var INVISIBLE_COLUMNS = [0,6,7,9,10,11];
 
 // Fetch DATA
 var cache_bust = new Date().toDateString().replaceAll(' ','');
+var exportTitle = `Pricelist.ovh - Baremetal Servers - ${cache_bust}`;
 var url = `https://share.s3.gra.io.cloud.ovh.net/baremetal_prices/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`;
 fetch(url).then(res => res.json()).then(res => {
 document.getElementById('cache-time').innerText = 'Last updated: ' + new Date(res.date).toString();
@@ -92,14 +93,6 @@ $(document).ready(function() {
 var mytable = $('#sd').DataTable( {
     initComplete: function () {
         var api = this.api();
-        
-        // Set sticky action
-        const el = document.getElementById("sd-thead");
-        const observer = new IntersectionObserver( 
-            ([e]) => e.target.classList.toggle("stuck", e.intersectionRatio < 1),
-            {threshold: [1] }
-        );
-        observer.observe(el);
 
         $('#sd').show();
         api.columns().eq(0).each(function (colIdx) {
@@ -139,8 +132,8 @@ var mytable = $('#sd').DataTable( {
     dom: 'Bfrtip',
     columnDefs: [{ "targets": INVISIBLE_COLUMNS, "visible": false }, {'targets': [17, 18], 'type': 'num'}],
     buttons: [
-        { extend: 'excel', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to Excel`, exportOptions: { modifier: { page: 'current' }, action: () => api.e } },
-        { extend: 'csv', attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to CSV`, exportOptions: { modifier: { page: 'current' } } }
+        { extend: 'excel', title: exportTitle, attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to Excel`, exportOptions: { modifier: { page: 'current' }, action: () => api.e } },
+        { extend: 'csv', title: exportTitle, attr: {class: 'btn btn-outline-light btn-sm buttons-csv buttons-html5'}, text: `${DOWNLOAD_SVG} Export to CSV`, exportOptions: { modifier: { page: 'current' } } }
     ]
 } );
 
