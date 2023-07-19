@@ -1,6 +1,6 @@
-import json
 from utils import *
 import re
+from datetime import datetime
 
 CONFORMITY = ['default', 'hds', 'hipaa', 'pcidss'] # snc computed
 SNC_MARKUP = 1.12
@@ -109,11 +109,8 @@ def get_ps(sub='FR'):
         mPlan = sorted(list(mPlan))
         price = mPlan[-1]
 
-        plans.append({
-            'invoiceName': plan['invoiceName'],
-            'price': price / 10 ** 8,
-            'installation': True
-        })
+        plans.append({ 'invoiceName': plan['invoiceName'], 'price_default': price / 10 ** 8, 'installation': True})
+        plans.append({ 'invoiceName': plan['invoiceName'], 'price_snc': (price / 10 ** 8), 'installation': True})
     return plans
 
 def parse_windows_licenses(plan_codes, list_of_cores):
@@ -195,7 +192,7 @@ def get_pcc_ranges_and_windows_licenses(sub='FR'):
             # Pack & Host
             pack_datastore = plan_codes[h['storagesPack'][0]] # always X2 this value
             pack = {'invoiceName': f"Pack {h['name']}", 'description': f"2x Host {h['name']} \n  - {cpu_text}\n  - {ram_text} \n{STORAGE_PACK_DESCRIPTION}"}
-            host = {'invoiceName': f"Pack {h['name']}", 'description': f"Additional Host {h['name']}\n{cpu_text}\n{ram_text}"} | plan_codes[h['planCode']]
+            host = {'invoiceName': f"Host {h['name']}", 'description': f"Additional Host {h['name']}\n{cpu_text}\n{ram_text}"} | plan_codes[h['planCode']]
             cores_quandidates.add(h['specifications']['cpu']['cores'])
 
             for conformity in CONFORMITY:
@@ -244,7 +241,9 @@ if __name__ == '__main__':
     for sub in SUBSIDIARIES:
         # price_stuct {'invoiceName', description, 'price_...'}
         products = {
+            'date': datetime.now().isoformat(),
             'locale': get_json(f'{get_base_api(sub)}/1.0/order/catalog/public/cloud?ovhSubsidiary={sub}')['locale'],
+            'catalog': [],
             'ranges': {}, # packs, hosts, datastore, public_ip, regions, managed_backup
             'other': {
                 'occ': get_occ_options(sub),
