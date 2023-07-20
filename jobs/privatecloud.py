@@ -6,6 +6,16 @@ import time
 CONFORMITY = ['default', 'hds', 'hipaa', 'pcidss'] # snc computed
 SNC_MARKUP = 1.12
 RANGES = ['vsphere', 'essentials', 'nsx-t']
+SNC_RANGES = ['vsphere', 'nsx-t']
+SNC_PRODUCTS = [
+    {'invoiceName': 'SNC VPN Gateway, 2x1 Gbps (Max 2x10 tunnels)', 'price_snc': round(400*SNC_MARKUP)},
+    {'invoiceName': 'SNC VPN Gateway, 2x2 Gbps (Max 2x10 tunnels)', 'price_snc': round(800*SNC_MARKUP)},
+    {'invoiceName': 'SNC VPN Gateway, 2x5 Gbps (Max 2x10 tunnels)', 'price_snc': round(1800*SNC_MARKUP)},
+    {'invoiceName': 'SNC VPN Gateway, 2x10 Gbps (Max 2x10 tunnels)', 'price_snc': round(3400*SNC_MARKUP)},
+    {'invoiceName': 'SNC SPN (Secured Private Network) incluant:\n   - 5 SPNs\n - 5 sous-réseaux par SPN\n - 50 routes statiques par SPN\n - Trafic illimité', 'price_snc': round(1000*SNC_MARKUP)},
+    {'invoiceName': 'SNC SPN option connectivité InterDC chiffré\n  - Trafic illimité', 'price_snc': round(1000*SNC_MARKUP)},
+]
+SNC_PS_PRICE = 2000
 STORAGE_PACK_DESCRIPTION = '2x Datastore 3 TB'
 BACKUP_DESCRIPTION = {
     'classic': 'Veeam Managed Backup - Standard',
@@ -35,7 +45,6 @@ def get_addon_families(obj):
                     continue
                 
                 for pricing in addon['plan']['details']['pricings'][pricing_key]:
-                    # item['desc'] = pricing['description']
                     item[f"price_{conformity}"] = pricing['price']['value']
             
             if item['price_default'] > 0 and 'hourly' not in item['family']:
@@ -111,7 +120,7 @@ def get_ps(sub='FR'):
         price = mPlan[-1]
 
         plans.append({ 'invoiceName': plan['invoiceName'], 'price_default': price / 10 ** 8, 'installation': True})
-        plans.append({ 'invoiceName': plan['invoiceName'], 'price_snc': (price / 10 ** 8), 'installation': True})
+        plans.append({ 'invoiceName': plan['invoiceName'], 'price_snc': SNC_PS_PRICE, 'installation': True})
     return plans
 
 def parse_windows_licenses(plan_codes, list_of_cores):
@@ -134,9 +143,9 @@ def get_veeam_and_zerto_licenses(sub='FR'):
         sub = 'en'
     tries = [sub, f'en-{sub}', f'fr-{sub}']
     RE_PRICE = r'<span class="price-value">[\D]+([\d]+[,\.]?[\d]+).*<\/span>'
+    veeam_price = 0
+    zerto_price = 0
     for s in tries:
-        veeam_price = 0
-        zerto_price = 0
         try:
             veam_html = get_html(f'https://www.ovhcloud.com/{s.lower()}/storage-solutions/veeam-enterprise/')
             res = re.findall(RE_PRICE, veam_html)
@@ -150,19 +159,23 @@ def get_veeam_and_zerto_licenses(sub='FR'):
             break
         except urllib.error.HTTPError: # 404 not found
             veeam_price = 0
-    # print(sub, veeam_price, zerto_price)
-    return [{'invoiceName': 'Veeam Entreprise plus License - per VM', 'price': veeam_price}] if veeam_price > 0 else [], \
-        [{'invoiceName': 'Zerto License - per VM', 'price': zerto_price}] if zerto_price > 0 else []
+    veam = {'invoiceName': 'Veeam Entreprise plus License - per VM'}
+    zerto = {'invoiceName': 'Zerto License - per VM'}
+    for con in CONFORMITY:
+        veam['price_'+con] = veeam_price
+        zerto['price_'+con] = zerto_price
+    veam['price_snc'] = round(veeam_price*SNC_MARKUP)
+    zerto['price_snc'] = round(zerto_price*SNC_MARKUP)
+
+    return [veam] if veeam_price > 0 else [], [zerto] if zerto_price > 0 else []
 
 def get_pcc_ranges_and_windows_licenses(sub='FR'):
     pcc_plans = get_json(f'{get_base_api(sub)}/1.0/order/catalog/formatted/privateCloud?ovhSubsidiary={sub}')
-    # pcc_plans = json.load(open('privateCloud-us.json'))
     print(f'{get_base_api(sub)}/1.0/order/catalog/formatted/privateCloud?ovhSubsidiary={sub}')
 
     plan_codes = {}
     for plans in pcc_plans['plans']:
         plan_codes |= get_addon_families(plans)
-    # print(*dict.keys(plan_codes), sep='\n')
 
     cores_quandidates = set([10,6,8,20])
 
@@ -197,7 +210,7 @@ def get_pcc_ranges_and_windows_licenses(sub='FR'):
             cores_quandidates.add(h['specifications']['cpu']['cores'])
 
             for conformity in CONFORMITY:
-                if cr['name'] == 'essential' and conformity != 'default':
+                if cr['name'] == 'essentials' and conformity != 'default':
                     continue
                 price_key = f"price_{conformity}"
                 price_host = plan_codes[h['planCode']][price_key]
@@ -206,9 +219,9 @@ def get_pcc_ranges_and_windows_licenses(sub='FR'):
                 price = pack_datastore[price_key] * 2 + plan_codes[managementFeePlanCode][price_key] + 2 * price_host 
                 pack[price_key] = price
 
-                if cr['name'] != 'essential' and conformity == 'default':
-                    pack['price_snc'] = price * SNC_MARKUP
-                    host['price_snc'] = price_host
+                if cr['name'] != 'essentials' and conformity == 'default':
+                    pack['price_snc'] = round(price * SNC_MARKUP)
+                    host['price_snc'] = round(price_host * SNC_MARKUP)
 
             packs.append(pack)
             hosts.append(host)
@@ -225,6 +238,12 @@ def get_pcc_ranges_and_windows_licenses(sub='FR'):
                 public_ip.append(price)
             elif 'datastore' in price['invoiceName'].lower():
                 price['description'] = f"Additional Datastore - {option['specifications']['type']} {option['specifications']['size']['value']} {option['specifications']['size']['unit']}"
+                if cr['name'] != 'essentials':
+                    price['price_snc'] = round(price['price_default'] * SNC_MARKUP)
+                else:
+                    del price['price_hds']
+                    del price['price_hipaa']
+                    del price['price_pcidss']
                 datastore.append(price)
 
         ranges[cr['name']] = {
@@ -240,7 +259,7 @@ def get_pcc_ranges_and_windows_licenses(sub='FR'):
 
 def privatecloud():
     subs = {}
-    for sub in SUBSIDIARIES:
+    for sub in ['FR']:
         # price_stuct {'invoiceName', description, 'price_...'}
         products = {
             'date': datetime.now().isoformat(),
@@ -256,6 +275,9 @@ def privatecloud():
                 'ps': []
             }
         }
+        if products['locale']['currencyCode'] == 'EUR':
+            products['other']['snc_network'] = SNC_PRODUCTS
+
         products['ranges'], products['other']['windows_license'] = get_pcc_ranges_and_windows_licenses(sub)
         products['other']['ps'] = get_ps(sub)
         products['other']['veeam_license'], products['other']['zerto_license'] = get_veeam_and_zerto_licenses(sub)

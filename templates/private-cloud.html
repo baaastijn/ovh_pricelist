@@ -13,12 +13,17 @@ function capitalize(text) {
     return text.split(' ').map(x => x.length > 3 ? x.charAt(0).toUpperCase() + x.slice(1) : x.toUpperCase()).join(' ');
 }
 
-function row_header(range, type, desc, row) {
+function row_html(range, type, desc, row) {
+    var key = 'price_' + conformity;
+    if (!(key in row) && !('price' in row)) {
+        return ''
+    }
+
     return `<tr>
-                <td>${range.toUpperCase()}</td>
-                <td>${capitalize(type.replaceAll('_', ' '))}</td>
-                <td>${desc}</td>
-                <td>${'price_default' in row ? row['price_default'] : row['price']}</td>
+        <td>${range.toUpperCase()}</td>
+        <td>${capitalize(type.replaceAll('_', ' '))}</td>
+        <td>${desc}</td>
+        <td>${'price_' + conformity in row ? row['price_' + conformity] : row['price']}</td>
     </tr>`;
 }
 
@@ -28,7 +33,7 @@ var url = ` https://share.s3.gra.io.cloud.ovh.net/private-cloud.json?cache_bust=
 
 document.addEventListener("DOMContentLoaded", function() {
     var conlist = document.getElementById('con-list');
-    conlist.innerHTML = CONFORMITY.reduce((acc, c, idx) => acc + `${idx != 0 ? '/' :''} <a href="${location.pathname}?con=${c}">${c == con ? '<b>'+c+'</b>' : s}</a> `, '');
+    conlist.innerHTML = 'Conformity: '  + CONFORMITY.reduce((acc, c, idx) => acc + `${idx != 0 ? '/' :''} <a href="${setURLParams({sub: sub, con: c})}">${c == conformity ? '<b>'+c+'</b>' : c}</a> `, '');
     conlist.style.display = 'block';
 });
 
@@ -58,7 +63,7 @@ fetch(url).then(res => res.json()).then(res => {
                 if (type == 'public_ip') {
                     description = row['invoiceName'] + ' - ' + description;
                 }
-                rows += row_header(range, type, description, row);
+                rows += row_html(range, type, description, row);
             }
         }
     }
@@ -66,7 +71,7 @@ fetch(url).then(res => res.json()).then(res => {
     for (var type in res.other) {
         for (var i in res.other[type]) {
             var row = res.other[type][i];
-            rows += row_header('', type, 'description' in row ? row['description'] : row['invoiceName'], row)
+            rows += row_html('', type, 'description' in row ? row['description'] : row['invoiceName'], row)
         }
     }
 

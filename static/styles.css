@@ -1,6 +1,8 @@
 body {
     margin: 0 0;
     --bs-body-color: #eee !important;
+    --bs-link-hover-color: #eee;
+    --bs-link-color: #bab8ff;
     color: var(--bs-body-color);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 0.8em;
@@ -22,7 +24,8 @@ nav {
     background-repeat: no-repeat;
 }
 
-a{ text-decoration: none;}
+a{ text-decoration: none;  }
+a:hover { text-shadow: 0 0 1px #eee;}
 article {
     height: calc(100vh - 55px);
     padding: 5px 15px;
@@ -40,6 +43,8 @@ article {
     display: none;
     z-index: 12;
 }
+.uppercase > a { text-transform: uppercase; }
+b { color: #84f4c0; }
 
 /* Custom datatable updates */
 thead {
