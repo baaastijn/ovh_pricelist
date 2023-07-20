@@ -36,6 +36,7 @@
     </button>
     <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
         <div class="text" id="sub-list"></div>
+        <div class="text" id="con-list" style="display: none"></div>
         <div id="cache-time" class=""></div> 
     </div>
     <br>
@@ -47,8 +48,9 @@ var DOWNLOAD_SVG = `<svg width="25px" height="25px" viewBox="0 0 24 24" fill="no
 <path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
 var SUBSIDIARIES = ['CA', 'CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN','US'];
-var CONFORMITY = ['']
+var CONFORMITY = ['default', 'hds', 'hipaa', 'pcidss'];
 var sub = new URLSearchParams(location.search).get('sub') || 'FR';
+var conformity = new URLSearchParams(location.search).get('con') || 'default';
 
 function setLastUpdated(res) {
     document.getElementById('cache-time').innerText = 'Last updated: ' + new Date(res.date).toString();

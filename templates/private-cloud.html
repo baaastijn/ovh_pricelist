@@ -26,6 +26,12 @@ var cache_bust = new Date().toDateString().replaceAll(' ','');
 var exportTitle = `Pricelist.ovh - Private Cloud - ${cache_bust}`;
 var url = ` https://share.s3.gra.io.cloud.ovh.net/private-cloud.json?cache_bust=${cache_bust}`;
 
+document.addEventListener("DOMContentLoaded", function() {
+    var conlist = document.getElementById('con-list');
+    conlist.innerHTML = CONFORMITY.reduce((acc, c, idx) => acc + `${idx != 0 ? '/' :''} <a href="${location.pathname}?con=${c}">${c == con ? '<b>'+c+'</b>' : s}</a> `, '');
+    conlist.style.display = 'block';
+});
+
 fetch(url).then(res => res.json()).then(res => {
     res = res[sub];
     setLastUpdated(res);
