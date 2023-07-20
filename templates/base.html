@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta rel="icon" href="favicon.ico" type="image/gif">
-<title>OVHcloud Price list | All Official OVH Prices</title>
+<title>OVHcloud Price list | {% block title %}{% endblock %}</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/b-2.4.1/b-html5-2.4.1/datatables.min.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -24,8 +24,8 @@
 
     <ul class="nav nav-pills" style="margin: 0 15px">
         <li class="nav-item"><a class="nav-link" href="index.html" title="Get the list of all available Baremetal servers at OVHCloud">Baremetal Cloud Servers</a></li>
-        <li class="nav-item"><a class="nav-link" href="privatecloud.html">Private Cloud</a></li>
-        <li class="nav-item"><a class="nav-link" href="publiccloud.html">Public Cloud</a></li>
+        <li class="nav-item"><a class="nav-link" href="private-cloud.html">Private Cloud</a></li>
+        <li class="nav-item"><a class="nav-link" href="public-cloud.html">Public Cloud</a></li>
     </ul>
 </nav>
 <article id="main" class="container-fluid">
@@ -41,15 +41,18 @@
     <br>
 <script type="text/javascript">
 
-    // VARS
-    var DOWNLOAD_SVG = `<svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path opacity="0.5" d="M3 15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`;
-    var SUBSIDIARIES = ['CA', 'CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN','US'];
-    var sub = new URLSearchParams(location.search).get('sub') || 'FR';
-</script>
-<script type="text/javascript" defer>
+// VARS
+var DOWNLOAD_SVG = `<svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path opacity="0.5" d="M3 15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+var SUBSIDIARIES = ['CA', 'CZ','DE','ES','FI','FR','GB','IE','IT','LT','MA','NL','PL','PT','SN','TN','US'];
+var CONFORMITY = ['']
+var sub = new URLSearchParams(location.search).get('sub') || 'FR';
+
+function setLastUpdated(res) {
+    document.getElementById('cache-time').innerText = 'Last updated: ' + new Date(res.date).toString();
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     let mybutton = document.getElementById("btn-back-to-top");

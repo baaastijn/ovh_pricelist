@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}Baremetal Servers Catalog{% endblock title %}
 {% block content %}
 
 <table id="sd" class="table nowrap table-hover" style="display: none; width: 100%;">
@@ -14,7 +15,7 @@ var cache_bust = new Date().toDateString().replaceAll(' ','');
 var exportTitle = `Pricelist.ovh - Baremetal Servers - ${cache_bust}`;
 var url = `https://share.s3.gra.io.cloud.ovh.net/baremetal_prices/${sub.toLowerCase()}.json?cache_bust=${cache_bust}`;
 fetch(url).then(res => res.json()).then(res => {
-document.getElementById('cache-time').innerText = 'Last updated: ' + new Date(res.date).toString();
+setLastUpdated(res);
 
 // Set header
 document.querySelector('#sd > thead').innerHTML =`<tr>

@@ -238,34 +238,30 @@ def get_pcc_ranges_and_windows_licenses(sub='FR'):
     return ranges, parse_windows_licenses(plan_codes, cores_quandidates)
 
 
-if __name__ == '__main__':
+def privatecloud():
     subs = {}
     for sub in SUBSIDIARIES:
         # price_stuct {'invoiceName', description, 'price_...'}
-        for tries in range(3):
-            try:
-                products = {
-                    'date': datetime.now().isoformat(),
-                    'locale': get_json(f'{get_base_api(sub)}/1.0/order/catalog/public/cloud?ovhSubsidiary={sub}')['locale'],
-                    'catalog': [],
-                    'ranges': {}, # packs, hosts, datastore, public_ip, regions, managed_backup
-                    'other': {
-                        'occ': get_occ_options(sub),
-                        'ip_lb': get_ip_lb(sub),
-                        'windows_license': [],
-                        'veeam_license': [],
-                        'zerto_license': [],
-                        'ps': []
-                    }
-                }
-                products['ranges'], products['other']['windows_license'] = get_pcc_ranges_and_windows_licenses(sub)
-                products['other']['ps'] = get_ps(sub)
-                products['other']['veeam_license'], products['other']['zerto_license'] = get_veeam_and_zerto_licenses(sub)
-                subs[sub] = products
-                break
-            except Exception as e:
-                print(e)
-                print(f'Retrying {tries}')
-                time.sleep(2**tries)
+        products = {
+            'date': datetime.now().isoformat(),
+            'locale': get_json(f'{get_base_api(sub)}/1.0/order/catalog/public/cloud?ovhSubsidiary={sub}')['locale'],
+            'catalog': [],
+            'ranges': {}, # packs, hosts, datastore, public_ip, regions, managed_backup
+            'other': {
+                'occ': get_occ_options(sub),
+                'ip_lb': get_ip_lb(sub),
+                'windows_license': [],
+                'veeam_license': [],
+                'zerto_license': [],
+                'ps': []
+            }
+        }
+        products['ranges'], products['other']['windows_license'] = get_pcc_ranges_and_windows_licenses(sub)
+        products['other']['ps'] = get_ps(sub)
+        products['other']['veeam_license'], products['other']['zerto_license'] = get_veeam_and_zerto_licenses(sub)
+        subs[sub] = products
 
     upload_gzip_json(subs, f'private-cloud.json', S3_BUCKET)
+
+if __name__ == '__main__':
+    privatecloud()

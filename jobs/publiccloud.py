@@ -1,5 +1,4 @@
 from utils import *
-import json
 from datetime import datetime
 import pandas as pd
 import bs4
@@ -51,8 +50,7 @@ MONTHLY_ONLY_FAMILIES = ['databases', 'instance', 'gateway', 'loadbalancer', 'oc
 
 
 def get_cloud_prices(sub):
-    # cloud = get_json(f'{get_base_api(sub)}/1.0/order/catalog/formatted/cloud?ovhSubsidiary={sub}')
-    cloud = json.load(open('cloud.json'))
+    cloud = get_json(f'{get_base_api(sub)}/1.0/order/catalog/formatted/cloud?ovhSubsidiary={sub}')
     families = next(filter(lambda x: x['invoiceName'] == 'Public Cloud Project', cloud['plans']))['addonsFamily']
     currency = cloud['plans'][0]['details']['pricings']['default'][0]['price']['currencyCode']
 
@@ -176,8 +174,7 @@ def build_key_description(df, family, title):
 
 
 def get_webpage():
-    # html = get_html('https://www.ovhcloud.com/en/public-cloud/prices/#')
-    html = open('/Users/tducrot/Downloads/pci.html').read()
+    html = get_html('https://www.ovhcloud.com/en/public-cloud/prices/#')
     soup = bs4.BeautifulSoup(html, 'lxml')
     container = soup.css.select('#compute')[0].parent
     family, title, = '', ''
@@ -210,15 +207,14 @@ def get_webpage():
     
     return pd.DataFrame(zip(keys, descriptions), columns=['key', 'description'])
 
-def merge_agora_desc():
-    sub = 'FR'
+def publiccloud():
     subs = {}
+    df_desc = get_webpage()
 
     for sub in SUBSIDIARIES:
         print(sub)
         publiccloud = get_cloud_prices(sub)
         df_agora = pd.DataFrame(publiccloud['catalog'])
-        df_desc = get_webpage()
 
         df = pd.merge(df_agora, df_desc, how='left', on='key')
         df['description'] = df['description'].combine_first(df['invoiceName'])
@@ -231,9 +227,5 @@ def merge_agora_desc():
     # print(df)
 
 if __name__ == '__main__':
-    
-    # publiccloud = get_cloud_prices(sub)
-    # print(*publiccloud['catalog'], sep='\n')
-
-    merge_agora_desc()
+    publiccloud()
 

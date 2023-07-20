@@ -83,14 +83,13 @@ def build_dataset(js):
                     plans.append(item)
     return plans
 
-
-if __name__ == '__main__':
+def baremetal():
     for sub in SUBSIDIARIES:
         base_api = get_base_api(sub)
-        data1 = get_json(f'{base_api}/v1/order/catalog/public/eco?ovhSubsidiary={sub}')
-        data2 = get_json(f'{base_api}/v1/order/catalog/public/baremetalServers?ovhSubsidiary={sub}')
-        dataset = build_dataset(data1)
-        dataset += build_dataset(data2)
+        # data1 = get_json(f'{base_api}/v1/order/catalog/public/eco?ovhSubsidiary={sub}')
+        data = get_json(f'{base_api}/v1/order/catalog/public/baremetalServers?ovhSubsidiary={sub}')
+        dataset = build_dataset(data)
+        # dataset += build_dataset(data2)
 
         assert len(dataset) > 1000, "Must have more than 1k refs"
         filename = f'baremetal_prices/{sub.lower()}.json'
@@ -98,6 +97,9 @@ if __name__ == '__main__':
         upload_gzip_json({
             'plans': dataset,
             'date': datetime.now().isoformat(),
-            'currency': data1['locale']['currencyCode']
+            'currency': data['locale']['currencyCode']
         }, filename, S3_BUCKET)
         print(f'INFO: Uploaded {filename}')
+
+if __name__ == '__main__':
+    baremetal()
